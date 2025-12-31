@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottery System - Home</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <div class="navbar-brand">
+                    <h1>🎰 Lottery System</h1>
+                </div>
+                <div class="navbar-menu" id="navbarMenu">
+                    <ul class="nav-list">
+                        <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
+                        <li><a href="#" data-page="lotteries" class="nav-link">Lotteries</a></li>
+                        <li id="userMenuNav" class="nav-item user-menu" style="display: none;">
+                            <a href="#" class="nav-link dropdown-toggle" id="userMenuToggle">My Account</a>
+                            <div class="dropdown-menu">
+                                <a href="#" data-page="dashboard">Dashboard</a>
+                                <a href="#" data-page="mytickets">My Tickets</a>
+                                <a href="#" data-page="profile">Profile</a>
+                                <a href="#" data-page="wallet">Wallet</a>
+                                <a href="#" data-page="history">History</a>
+                                <hr>
+                                <a href="#" id="logoutBtn">Logout</a>
+                            </div>
+                        </li>
+                        <li id="adminMenuNav" class="nav-item admin-menu" style="display: none;">
+                            <a href="#" class="nav-link dropdown-toggle" id="adminMenuToggle">Admin</a>
+                            <div class="dropdown-menu">
+                                <a href="#" data-page="admin-dashboard">Dashboard</a>
+                                <a href="#" data-page="admin-create">Create Lottery</a>
+                                <a href="#" data-page="admin-manage">Manage Lotteries</a>
+                                <a href="#" data-page="admin-users">Users</a>
+                                <a href="#" data-page="admin-analytics">Analytics</a>
+                            </div>
+                        </li>
+                        <li id="authMenuNav">
+                            <a href="#" data-page="login" class="nav-link btn btn--primary btn--sm">Login</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Container -->
+            <div id="pageContainer" class="page-container">
+                <!-- Pages will be loaded here -->
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-container">
+                <p>&copy; 2026 Lottery System Demo. All rights reserved.</p>
+                <p>This is a demonstration project. For educational purposes only.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/utils.js"></script>
+</body>
+</html>
