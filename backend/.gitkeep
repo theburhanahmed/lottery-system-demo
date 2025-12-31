@@ -1,0 +1,8 @@
+# This file ensures the backend directory is tracked in git
+# Backend files:
+# - manage.py: Django command-line utility
+# - db.sqlite3: SQLite database (auto-generated, ignored in .gitignore)
+# - requirements.txt: Python dependencies
+# - apps/: Django application modules
+# - lottery/: Django project configuration
+# - lotteryproject/: Main project settings
