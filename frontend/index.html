@@ -3,90 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery System - Home</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/responsive.css">
+    <title>🎰 Lottery System - Play & Win</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="app" class="app-container">
+    <div id="app">
         <!-- Navigation -->
         <nav class="navbar">
-            <div class="navbar-container">
+            <div class="container">
                 <div class="navbar-brand">
                     <h1>🎰 Lottery System</h1>
                 </div>
-                <div class="navbar-menu" id="navbarMenu">
-                    <ul class="nav-list">
-                        <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
-                        <li><a href="#" data-page="lotteries" class="nav-link">Lotteries</a></li>
-                        <li id="userMenuNav" class="nav-item user-menu" style="display: none;">
-                            <a href="#" class="nav-link dropdown-toggle" id="userMenuToggle">My Account</a>
-                            <div class="dropdown-menu">
-                                <a href="#" data-page="dashboard">Dashboard</a>
-                                <a href="#" data-page="mytickets">My Tickets</a>
-                                <a href="#" data-page="profile">Profile</a>
-                                <a href="#" data-page="wallet">Wallet</a>
-                                <a href="#" data-page="history">History</a>
-                                <hr>
-                                <a href="#" id="logoutBtn">Logout</a>
-                            </div>
-                        </li>
-                        <li id="adminMenuNav" class="nav-item admin-menu" style="display: none;">
-                            <a href="#" class="nav-link dropdown-toggle" id="adminMenuToggle">Admin</a>
-                            <div class="dropdown-menu">
-                                <a href="#" data-page="admin-dashboard">Dashboard</a>
-                                <a href="#" data-page="admin-create">Create Lottery</a>
-                                <a href="#" data-page="admin-manage">Manage Lotteries</a>
-                                <a href="#" data-page="admin-users">Users</a>
-                                <a href="#" data-page="admin-analytics">Analytics</a>
-                            </div>
-                        </li>
-                        <li id="authMenuNav">
-                            <a href="#" data-page="login" class="nav-link btn btn--primary btn--sm">Login</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="hamburger" id="hamburger">
+                <ul class="navbar-menu" id="navbarMenu">
+                    <li><a href="#/" class="nav-link active" data-page="home">Home</a></li>
+                    <li><a href="#/lotteries" class="nav-link" data-page="lotteries">Lotteries</a></li>
+                    <li><a href="#/tickets" class="nav-link" data-page="tickets">My Tickets</a></li>
+                    <li><a href="#/dashboard" class="nav-link" data-page="dashboard">Dashboard</a></li>
+                    <li><a href="#/transactions" class="nav-link" data-page="transactions">Transactions</a></li>
+                    <li>
+                        <div class="nav-user" id="navUser" style="display: none;">
+                            <span id="userName"></span>
+                            <span class="badge" id="walletDisplay">$0.00</span>
+                            <button class="btn btn--sm btn--secondary" id="logoutBtn">Logout</button>
+                        </div>
+                        <div class="nav-auth" id="navAuth">
+                            <a href="#/login" class="btn btn--sm btn--primary">Login</a>
+                            <a href="#/register" class="btn btn--sm btn--secondary">Register</a>
+                        </div>
+                    </li>
+                </ul>
+                <button class="hamburger" id="hamburger">
                     <span></span>
                     <span></span>
                     <span></span>
-                </div>
+                </button>
             </div>
         </nav>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Page Container -->
-            <div id="pageContainer" class="page-container">
-                <!-- Pages will be loaded here -->
-            </div>
-        </main>
+            <!-- Home Page -->
+            <section id="page-home" class="page active">
+                <div class="container">
+                    <div class="hero">
+                        <h2>Welcome to Lottery System</h2>
+                        <p>Your chance to win big! Play lotteries and change your life.</p>
+                        <div id="heroAuth" style="display: none;">
+                            <a href="#/login" class="btn btn--primary btn--lg">Login to Play</a>
+                            <a href="#/register" class="btn btn--secondary btn--lg">Create Account</a>
+                        </div>
+                        <div id="heroUser" style="display: none;">
+                            <a href="#/lotteries" class="btn btn--primary btn--lg">Browse Lotteries</a>
+                            <a href="#/dashboard" class="btn btn--secondary btn--lg">View Dashboard</a>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Active Lotteries</h3>
+                            <p class="stat-number" id="activeLotteries">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Players</h3>
+                            <p class="stat-number" id="totalPlayers">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Tickets Sold</h3>
+                            <p class="stat-number" id="totalTickets">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Prizes</h3>
+                            <p class="stat-number" id="totalPrizes">$0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-container">
-                <p>&copy; 2026 Lottery System Demo. All rights reserved.</p>
-                <p>This is a demonstration project. For educational purposes only.</p>
-            </div>
-        </footer>
+            <!-- Login Page -->
+            <section id="page-login" class="page">
+                <div class="container form-container">
+                    <div class="form-card">
+                        <h2>Login</h2>
+                        <form id="loginForm" class="form">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" id="loginUsername" required placeholder="Enter username">
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="loginPassword" required placeholder="Enter password">
+                            </div>
+                            <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+                            <p class="form-footer">Don't have account? <a href="#/register">Register here</a></p>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Register Page -->
+            <section id="page-register" class="page">
+                <div class="container form-container">
+                    <div class="form-card">
+                        <h2>Create Account</h2>
+                        <form id="registerForm" class="form">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" id="registerUsername" required placeholder="Choose username">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="registerEmail" required placeholder="Enter email">
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="registerPassword" required placeholder="Create password" minlength="6">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm Password</label>
+                                <input type="password" id="registerPasswordConfirm" required placeholder="Confirm password" minlength="6">
+                            </div>
+                            <button type="submit" class="btn btn--primary btn--full-width">Register</button>
+                            <p class="form-footer">Already have account? <a href="#/login">Login here</a></p>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lotteries Page -->
+            <section id="page-lotteries" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h2>Available Lotteries</h2>
+                        <div class="filter-controls">
+                            <select id="statusFilter" class="form-control">
+                                <option value="">All Status</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="CLOSED">Closed</option>
+                                <option value="DRAWN">Drawn</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="lotteries-grid" id="lotteriesGrid">
+                        <div class="loading">Loading lotteries...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lottery Detail & Ticket Purchase -->
+            <section id="page-lottery-detail" class="page">
+                <div class="container">
+                    <button class="btn btn--outline" onclick="navigateTo('#/lotteries')">← Back to Lotteries</button>
+                    <div class="lottery-detail" id="lotteryDetail"></div>
+                </div>
+            </section>
+
+            <!-- My Tickets Page -->
+            <section id="page-tickets" class="page">
+                <div class="container">
+                    <h2>My Lottery Tickets</h2>
+                    <div class="tickets-grid" id="ticketsGrid">
+                        <div class="loading">Loading tickets...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Page -->
+            <section id="page-dashboard" class="page">
+                <div class="container">
+                    <h2>Dashboard</h2>
+                    <div class="dashboard-grid">
+                        <!-- Wallet Card -->
+                        <div class="card">
+                            <div class="card__header">Wallet Balance</div>
+                            <div class="card__body">
+                                <div class="wallet-display">
+                                    <h3 id="dashboardBalance">$0.00</h3>
+                                    <button class="btn btn--primary btn--sm" id="addFundsBtn">Add Funds</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statistics Cards -->
+                        <div class="card">
+                            <div class="card__header">Your Statistics</div>
+                            <div class="card__body">
+                                <div class="stats-list">
+                                    <div class="stat-item">
+                                        <span>Tickets Bought:</span>
+                                        <strong id="statTickets">0</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Total Spent:</span>
+                                        <strong id="statSpent">$0.00</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Total Won:</span>
+                                        <strong id="statWon">$0.00</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Total Wins:</span>
+                                        <strong id="statWins">0</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Methods -->
+                        <div class="card">
+                            <div class="card__header">Payment Methods</div>
+                            <div class="card__body">
+                                <div id="paymentMethodsList"></div>
+                                <button class="btn btn--secondary btn--sm" id="addPaymentBtn">Add Payment Method</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Page -->
+            <section id="page-transactions" class="page">
+                <div class="container">
+                    <h2>Transaction History</h2>
+                    <div class="filter-controls">
+                        <select id="transactionTypeFilter" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="DEPOSIT">Deposits</option>
+                            <option value="TICKET_PURCHASE">Ticket Purchase</option>
+                            <option value="WITHDRAWAL">Withdrawals</option>
+                            <option value="PRIZE_CLAIM">Prize Claims</option>
+                        </select>
+                    </div>
+                    <div class="transactions-list" id="transactionsList">
+                        <div class="loading">Loading transactions...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Dashboard -->
+            <section id="page-admin-dashboard" class="page">
+                <div class="container">
+                    <h2>Admin Dashboard</h2>
+                    <div class="admin-stats-grid" id="adminStats"></div>
+                    <div class="admin-controls">
+                        <a href="#/admin-lotteries" class="btn btn--primary">Manage Lotteries</a>
+                        <a href="#/admin-users" class="btn btn--primary">Manage Users</a>
+                        <a href="#/admin-withdrawals" class="btn btn--primary">Manage Withdrawals</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Create Lottery -->
+            <section id="page-admin-create-lottery" class="page">
+                <div class="container form-container">
+                    <div class="form-card">
+                        <h2>Create New Lottery</h2>
+                        <form id="createLotteryForm" class="form">
+                            <div class="form-group">
+                                <label>Lottery Name</label>
+                                <input type="text" id="lotteryName" required placeholder="Enter lottery name">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="lotteryDescription" rows="4" placeholder="Enter description"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Ticket Price ($)</label>
+                                    <input type="number" id="ticketPrice" required step="0.01" placeholder="10.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Prize Amount ($)</label>
+                                    <input type="number" id="prizeAmount" required step="0.01" placeholder="5000.00">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Total Tickets</label>
+                                    <input type="number" id="totalTickets" required placeholder="1000">
+                                </div>
+                                <div class="form-group">
+                                    <label>Draw Date</label>
+                                    <input type="datetime-local" id="drawDate" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn--primary btn--full-width">Create Lottery</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
-
-    <!-- Modal -->
-    <div id="modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <div id="modalBody"></div>
+    <!-- Modals -->
+    <div class="modal" id="ticketPurchaseModal">
+        <div class="modal__content">
+            <button class="modal__close" onclick="closeModal('ticketPurchaseModal')">&times;</button>
+            <h3>Purchase Lottery Ticket</h3>
+            <form id="ticketPurchaseForm" class="form">
+                <div id="purchaseInfo"></div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" id="ticketQuantity" value="1" min="1" max="100">
+                </div>
+                <div id="purchaseTotal"></div>
+                <button type="submit" class="btn btn--primary btn--full-width">Purchase Tickets</button>
+            </form>
         </div>
     </div>
 
+    <div class="modal" id="addFundsModal">
+        <div class="modal__content">
+            <button class="modal__close" onclick="closeModal('addFundsModal')">&times;</button>
+            <h3>Add Funds to Wallet</h3>
+            <form id="addFundsForm" class="form">
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="fundsAmount" required step="0.01" min="1" placeholder="Enter amount">
+                </div>
+                <button type="submit" class="btn btn--primary btn--full-width">Add Funds</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="addPaymentModal">
+        <div class="modal__content">
+            <button class="modal__close" onclick="closeModal('addPaymentModal')">&times;</button>
+            <h3>Add Payment Method</h3>
+            <form id="addPaymentForm" class="form">
+                <div class="form-group">
+                    <label>Method Name</label>
+                    <input type="text" id="paymentName" required placeholder="e.g., My Bank Account">
+                </div>
+                <div class="form-group">
+                    <label>Payment Type</label>
+                    <select id="paymentType" required>
+                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                        <option value="CREDIT_CARD">Credit Card</option>
+                        <option value="E_WALLET">E-Wallet</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="text" id="accountNumber" required placeholder="Enter account number">
+                </div>
+                <button type="submit" class="btn btn--primary btn--full-width">Add Payment Method</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <!-- Scripts -->
-    <script src="js/app.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/utils.js"></script>
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+    <script src="ui.js"></script>
+    <script src="utils.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
