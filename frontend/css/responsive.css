@@ -1,0 +1,373 @@
+/* Tablet Screens (768px and below) */
+@media (max-width: 768px) {
+    /* Navbar adjustments */
+    .hamburger {
+        display: flex;
+    }
+
+    .navbar-menu {
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background-color: var(--surface-color);
+        flex-direction: column;
+        gap: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: var(--transition);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .navbar-menu.active {
+        max-height: 500px;
+    }
+
+    .nav-list {
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+    }
+
+    .nav-list li {
+        width: 100%;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-link {
+        display: block;
+        padding: 15px 20px;
+        border-radius: 0;
+    }
+
+    /* Grid adjustments */
+    .grid--2 {
+        grid-template-columns: 1fr;
+    }
+
+    .grid--3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid--4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Typography */
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    /* Main content padding */
+    .main-content {
+        padding: 15px;
+    }
+
+    /* Card adjustments */
+    .card {
+        padding: 15px;
+    }
+
+    /* Modal adjustments */
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    /* Table responsiveness */
+    .table {
+        font-size: 0.875rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px;
+    }
+
+    /* Button adjustments */
+    .btn--full-width {
+        width: 100%;
+    }
+
+    .card-footer {
+        flex-direction: column;
+    }
+
+    .card-footer .btn {
+        width: 100%;
+    }
+
+    /* Toast positioning */
+    .toast {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+
+    /* Flex utilities */
+    .flex-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+/* Mobile Screens (480px and below) */
+@media (max-width: 480px) {
+    /* Root font size */
+    html {
+        font-size: 14px;
+    }
+
+    /* Typography */
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    h4,
+    h5,
+    h6 {
+        font-size: 1rem;
+    }
+
+    /* Navbar */
+    .navbar-container {
+        padding: 12px 15px;
+    }
+
+    .navbar-brand h1 {
+        font-size: 1.25rem;
+    }
+
+    /* Grid adjustments */
+    .grid--2,
+    .grid--3,
+    .grid--4 {
+        grid-template-columns: 1fr;
+    }
+
+    /* Card adjustments */
+    .card {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+
+    .card-header {
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+    }
+
+    .card-footer {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 8px 16px;
+        font-size: 0.875rem;
+    }
+
+    .btn--sm {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+    }
+
+    .btn--lg {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+
+    /* Forms */
+    .form-control {
+        padding: 8px 10px;
+        font-size: 0.875rem;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    /* Modal */
+    .modal-content {
+        width: 100%;
+        padding: 15px;
+        border-radius: 0;
+    }
+
+    .close-modal {
+        right: 15px;
+        top: 15px;
+        font-size: 24px;
+    }
+
+    /* Tables */
+    .table {
+        font-size: 0.75rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 6px;
+    }
+
+    /* Main content */
+    .main-content {
+        padding: 10px;
+    }
+
+    /* Toast */
+    .toast {
+        bottom: 5px;
+        right: 5px;
+        left: 5px;
+        padding: 12px 15px;
+        font-size: 0.875rem;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        font-size: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* Footer */
+    .footer {
+        padding: 20px 15px;
+    }
+
+    .footer p {
+        font-size: 0.75rem;
+    }
+
+    /* Alerts */
+    .alert {
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        font-size: 0.875rem;
+    }
+}
+
+/* Large Screens (1200px and above) */
+@media (min-width: 1200px) {
+    .main-content {
+        padding: 30px;
+    }
+
+    .grid--4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .grid--5 {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* Landscape Mode */
+@media (max-height: 500px) and (orientation: landscape) {
+    .navbar {
+        padding: 5px 0;
+    }
+
+    .navbar-brand h1 {
+        font-size: 1.1rem;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    .card {
+        margin-bottom: 10px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .navbar,
+    .footer,
+    .btn,
+    .modal {
+        display: none !important;
+    }
+
+    body {
+        background-color: white;
+    }
+
+    .card {
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+}
+
+/* Animations for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #1e293b;
+        --surface-color: #0f172a;
+        --text-color: #f1f5f9;
+        --text-light: #cbd5e1;
+        --border-color: #334155;
+        --primary-light: #1e40af;
+    }
+
+    .dropdown-menu {
+        background-color: var(--surface-color);
+    }
+
+    .dropdown-menu a {
+        color: var(--text-color);
+    }
+
+    .dropdown-menu a:hover {
+        background-color: var(--bg-color);
+    }
+
+    .table thead {
+        background-color: var(--text-color);
+        color: var(--surface-color);
+    }
+
+    .alert--success {
+        background-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .alert--warning {
+        background-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .alert--danger {
+        background-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .alert--info {
+        background-color: rgba(37, 99, 235, 0.2);
+    }
+}
