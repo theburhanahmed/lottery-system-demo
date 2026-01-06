@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Lottery System</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <a href="../index.html" class="logo">🎰 Lottery System</a>
+      <button id="hamburger">☰</button>
+      <ul class="nav-links" id="navbarMenu">
+        <li><a href="../index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="./lotteries.html" class="nav-link" data-page="lotteries">Lotteries</a></li>
+        <li id="adminMenu" style="display: none;"><a href="./admin-dashboard.html" class="nav-link" data-page="admin-dashboard">Admin</a></li>
+      </ul>
+      <div id="navAuth" style="display: flex; gap: 10px;">
+        <a href="./login.html" class="btn btn--primary" style="padding: 8px 16px; font-size: 14px;">Login</a>
+        <a href="./register.html" class="btn btn--secondary" style="padding: 8px 16px; font-size: 14px;">Register</a>
+      </div>
+      <div id="navUser" style="display: none; gap: 15px; align-items: center;">
+        <div class="user-section">
+          <span>💰 <strong id="walletDisplay">$0.00</strong></span>
+        </div>
+        <span id="userName"></span>
+        <a href="./dashboard.html" class="btn btn--secondary" style="padding: 8px 12px; font-size: 12px;">Profile</a>
+        <button id="logoutBtn" class="btn btn--secondary" style="padding: 8px 12px; font-size: 12px;">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Dashboard Page Content -->
+  <div class="page active">
+    <div class="container" style="margin-top: 40px;">
+      <h2 style="margin-bottom: 20px;">Dashboard</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Wallet Balance</h3>
+          <div class="value" id="dashboardBalance">$0.00</div>
+          <button class="btn btn--primary" id="addFundsBtn" style="margin-top: 15px; padding: 6px 12px; font-size: 12px;">+ Add Funds</button>
+        </div>
+        <div class="stat-card">
+          <h3>Tickets Bought</h3>
+          <div class="value" id="statTickets">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Spent</h3>
+          <div class="value" id="statSpent">$0.00</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Won</h3>
+          <div class="value" id="statWon">$0.00</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 30px;">
+        <div class="card__header">Payment Methods</div>
+        <div class="card__body">
+          <div id="paymentMethodsList"></div>
+          <button class="btn btn--primary" id="addPaymentBtn" style="margin-top: 15px;">+ Add Payment Method</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <div class="card__header">Recent Activity</div>
+        <div class="card__body">
+          <div id="recentActivity">
+            <p style="color: #999;">Loading recent activity...</p>
+          </div>
+          <a href="./transactions.html" class="btn btn--primary" style="margin-top: 15px;">View All Transactions</a>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <div class="card__header">Quick Actions</div>
+        <div class="card__body">
+          <button class="btn btn--primary" id="requestWithdrawalBtn" style="margin: 5px;">Request Withdrawal</button>
+          <a href="./profile.html" class="btn btn--secondary" style="margin: 5px;">Profile Settings</a>
+          <a href="./tickets.html" class="btn btn--secondary" style="margin: 5px;">My Tickets</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="addFundsModal" class="modal">
+    <div class="modal__content">
+      <span class="modal__close" onclick="UI.closeModal('addFundsModal')">&times;</span>
+      <div class="modal__header">Add Funds</div>
+      <form id="addFundsForm">
+        <div class="form-group">
+          <label>Amount ($)</label>
+          <input type="number" id="fundsAmount" step="0.01" min="0.01" required>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full-width">Add Funds</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="addPaymentModal" class="modal">
+    <div class="modal__content">
+      <span class="modal__close" onclick="UI.closeModal('addPaymentModal')">&times;</span>
+      <div class="modal__header">Add Payment Method</div>
+      <form id="addPaymentForm">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="paymentName" required>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="paymentType" required>
+            <option>CREDIT_CARD</option>
+            <option>BANK_TRANSFER</option>
+            <option>PAYPAL</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Account Number</label>
+          <input type="text" id="accountNumber" required>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full-width">Add Method</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="withdrawalRequestModal" class="modal">
+    <div class="modal__content">
+      <span class="modal__close" onclick="UI.closeModal('withdrawalRequestModal')">&times;</span>
+      <div class="modal__header">Request Withdrawal</div>
+      <div id="withdrawalLimitsInfo" style="padding: 15px; background: #f5f5f5; margin-bottom: 15px; border-radius: 5px;">
+        <p>Loading withdrawal limits...</p>
+      </div>
+      <form id="withdrawalRequestForm">
+        <div class="form-group">
+          <label>Amount ($)</label>
+          <input type="number" id="withdrawalAmount" step="0.01" min="0.01" required>
+        </div>
+        <div class="form-group">
+          <label>Payment Method (Optional - can use bank details below)</label>
+          <select id="withdrawalPaymentMethod" class="form-control">
+            <option value="">Select payment method...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bank Details (JSON format)</label>
+          <textarea id="bankDetails" class="form-control" rows="3" placeholder='{"account_number": "...", "routing_number": "..."}'></textarea>
+        </div>
+        <div class="form-group">
+          <label>Remarks (Optional)</label>
+          <textarea id="withdrawalRemarks" class="form-control" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full-width">Request Withdrawal</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/payments.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

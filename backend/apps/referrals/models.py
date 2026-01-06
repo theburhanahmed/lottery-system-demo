@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 
@@ -96,7 +96,7 @@ class ReferralLink(models.Model):
     Unique referral link for each user.
     """
     user = models.OneToOneField(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='referral_link'
     )
@@ -158,14 +158,14 @@ class Referral(models.Model):
 
     # Relationships
     referrer = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='referrals_made',
         help_text='User who made the referral'
     )
     
     referred_user = models.OneToOneField(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='referred_by',
         help_text='User who was referred'
@@ -265,7 +265,7 @@ class ReferralBonus(models.Model):
     )
 
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='referral_bonuses',
         help_text='User who received the bonus'
@@ -339,7 +339,7 @@ class ReferralWithdrawal(models.Model):
     )
 
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='referral_withdrawals',
         help_text='User requesting withdrawal'
@@ -379,7 +379,7 @@ class ReferralWithdrawal(models.Model):
     
     # Tracking
     processed_by = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

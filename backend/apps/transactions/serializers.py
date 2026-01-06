@@ -21,22 +21,23 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentMethod
         fields = [
-            'id', 'name', 'type', 'account_number', 'is_primary',
-            'is_verified', 'created_at'
+            'id', 'method_type', 'is_primary', 'is_active',
+            'payment_details', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class WithdrawalRequestSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     payment_method = PaymentMethodSerializer(read_only=True)
+    payment_method_id = serializers.UUIDField(write_only=True, required=False)
 
     class Meta:
         model = WithdrawalRequest
         fields = [
-            'id', 'user', 'amount', 'status', 'payment_method',
-            'transaction_id', 'requested_at', 'processed_at'
+            'id', 'user', 'amount', 'status', 'payment_method', 'payment_method_id',
+            'bank_details', 'remarks', 'requested_at', 'processed_at'
         ]
         read_only_fields = [
-            'id', 'user', 'status', 'transaction_id', 'requested_at', 'processed_at'
+            'id', 'user', 'status', 'requested_at', 'processed_at'
         ]

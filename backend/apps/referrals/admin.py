@@ -174,6 +174,28 @@ class ReferralAdmin(admin.ModelAdmin):
                 credited_at=timezone.now()
             )
             
+            # Credit bonuses to users
+            referral.referrer.add_balance(program.referral_bonus_amount)
+            referral.referred_user.add_balance(program.referred_user_bonus)
+            
+            # Update referral link
+            referral.referrer.referral_link.total_referred += 1
+            referral.referrer.referral_link.total_bonus_earned += program.referral_bonus_amount
+            referral.referrer.referral_link.save()
+            
+            # Send notification emails
+            from apps.notifications.tasks import send_referral_bonus_credited_task
+            send_referral_bonus_credited_task.delay(
+                str(referral.referrer.id),
+                float(program.referral_bonus_amount),
+                str(referral.id)
+            )
+            send_referral_bonus_credited_task.delay(
+                str(referral.referred_user.id),
+                float(program.referred_user_bonus),
+                str(referral.id)
+            )
+            
             count += 1
         
         self.message_user(request, f'{count} referrals approved and bonuses awarded.')

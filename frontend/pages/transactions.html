@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transactions - Lottery System</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <a href="../index.html" class="logo">🎰 Lottery System</a>
+      <button id="hamburger">☰</button>
+      <ul class="nav-links" id="navbarMenu">
+        <li><a href="../index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="./lotteries.html" class="nav-link" data-page="lotteries">Lotteries</a></li>
+        <li id="adminMenu" style="display: none;"><a href="./admin-dashboard.html" class="nav-link" data-page="admin-dashboard">Admin</a></li>
+      </ul>
+      <div id="navAuth" style="display: flex; gap: 10px;">
+        <a href="./login.html" class="btn btn--primary" style="padding: 8px 16px; font-size: 14px;">Login</a>
+        <a href="./register.html" class="btn btn--secondary" style="padding: 8px 16px; font-size: 14px;">Register</a>
+      </div>
+      <div id="navUser" style="display: none; gap: 15px; align-items: center;">
+        <div class="user-section">
+          <span>💰 <strong id="walletDisplay">$0.00</strong></span>
+        </div>
+        <span id="userName"></span>
+        <a href="./dashboard.html" class="btn btn--secondary" style="padding: 8px 12px; font-size: 12px;">Profile</a>
+        <button id="logoutBtn" class="btn btn--secondary" style="padding: 8px 12px; font-size: 12px;">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Transactions Page Content -->
+  <div class="page active">
+    <div class="container" style="margin-top: 40px;">
+      <h2 style="margin-bottom: 20px;">Transactions</h2>
+      
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card__body">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+              <label>Type</label>
+              <select id="transactionTypeFilter" class="form-control">
+                <option value="">All Types</option>
+                <option value="DEPOSIT">Deposit</option>
+                <option value="WITHDRAWAL">Withdrawal</option>
+                <option value="TICKET_PURCHASE">Ticket Purchase</option>
+                <option value="PRIZE_AWARD">Prize Award</option>
+                <option value="REFUND">Refund</option>
+              </select>
+            </div>
+            <div>
+              <label>Status</label>
+              <select id="transactionStatusFilter" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="PENDING">Pending</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="FAILED">Failed</option>
+              </select>
+            </div>
+            <div>
+              <label>Start Date</label>
+              <input type="date" id="transactionStartDate" class="form-control">
+            </div>
+            <div>
+              <label>End Date</label>
+              <input type="date" id="transactionEndDate" class="form-control">
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button class="btn btn--primary" onclick="loadTransactions()" style="width: 100%;">Filter</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="transactionsList"></div>
+    </div>
+  </div>
+
+  <!-- Transaction Detail Modal -->
+  <div id="transactionModal" class="modal">
+    <div class="modal__content">
+      <span class="modal__close" onclick="closeTransactionModal()">&times;</span>
+      <div class="modal__header">Transaction Details</div>
+      <div class="modal__body" id="transactionModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

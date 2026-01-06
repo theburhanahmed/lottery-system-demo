@@ -1,6 +1,8 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.core.cache import cache
+from apps.common.cache import CacheKeys
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q, Sum, Count
 from django.utils import timezone
@@ -50,9 +52,20 @@ class ReferralProgramViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def current(self, request):
         """Get current referral program settings."""
+        # Cache referral program settings
+        cache_key = CacheKeys.referral_program_settings()
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return Response(cached_result)
+        
         program = ReferralProgram.get_program()
         serializer = self.get_serializer(program)
-        return Response(serializer.data)
+        result = serializer.data
+        
+        # Cache for 10 minutes
+        cache.set(cache_key, result, 600)
+        
+        return Response(result)
 
 
 class ReferralLinkViewSet(viewsets.ReadOnlyModelViewSet):
@@ -66,6 +79,14 @@ class ReferralLinkViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         """Filter by user unless admin."""
+        # Handle schema generation (drf_yasg uses AnonymousUser)
+        if getattr(self, 'swagger_fake_view', False):
+            return ReferralLink.objects.none()
+        
+        # Check if user is authenticated
+        if not self.request.user.is_authenticated:
+            return ReferralLink.objects.none()
+        
         user = self.request.user
         if user.is_staff:
             return ReferralLink.objects.all()
@@ -109,6 +130,14 @@ class ReferralViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter by user unless admin."""
+        # Handle schema generation (drf_yasg uses AnonymousUser)
+        if getattr(self, 'swagger_fake_view', False):
+            return Referral.objects.none()
+        
+        # Check if user is authenticated
+        if not self.request.user.is_authenticated:
+            return Referral.objects.none()
+        
         user = self.request.user
         if user.is_staff:
             return Referral.objects.all()
@@ -128,6 +157,12 @@ class ReferralViewSet(viewsets.ModelViewSet):
     def stats(self, request):
         """Get referral statistics for current user."""
         user = request.user
+        
+        # Try to get from cache
+        cache_key = CacheKeys.referral_stats(user.id)
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return Response(cached_result)
         
         try:
             link = user.referral_link
@@ -174,6 +209,9 @@ class ReferralViewSet(viewsets.ModelViewSet):
             'referral_code': link.referral_code,
             'referral_url': f'/register?ref={link.referral_code}'
         }
+        
+        # Cache for 1 minute
+        cache.set(cache_key, stats, 60)
         
         return Response(stats)
 
@@ -225,6 +263,23 @@ class ReferralViewSet(viewsets.ModelViewSet):
         referral.referrer.referral_link.total_bonus_earned += program.referral_bonus_amount
         referral.referrer.referral_link.save()
         
+        # Credit bonuses to users
+        referral.referrer.add_balance(program.referral_bonus_amount)
+        referral.referred_user.add_balance(program.referred_user_bonus)
+        
+        # Send notification emails
+        from apps.notifications.tasks import send_referral_bonus_credited_task
+        send_referral_bonus_credited_task.delay(
+            str(referral.referrer.id),
+            float(program.referral_bonus_amount),
+            str(referral.id)
+        )
+        send_referral_bonus_credited_task.delay(
+            str(referral.referred_user.id),
+            float(program.referred_user_bonus),
+            str(referral.id)
+        )
+        
         serializer = self.get_serializer(referral)
         return Response(serializer.data)
 
@@ -257,6 +312,14 @@ class ReferralBonusViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         """Filter by user unless admin."""
+        # Handle schema generation (drf_yasg uses AnonymousUser)
+        if getattr(self, 'swagger_fake_view', False):
+            return ReferralBonus.objects.none()
+        
+        # Check if user is authenticated
+        if not self.request.user.is_authenticated:
+            return ReferralBonus.objects.none()
+        
         user = self.request.user
         if user.is_staff:
             return ReferralBonus.objects.all()
@@ -302,6 +365,14 @@ class ReferralWithdrawalViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter by user unless admin."""
+        # Handle schema generation (drf_yasg uses AnonymousUser)
+        if getattr(self, 'swagger_fake_view', False):
+            return ReferralWithdrawal.objects.none()
+        
+        # Check if user is authenticated
+        if not self.request.user.is_authenticated:
+            return ReferralWithdrawal.objects.none()
+        
         user = self.request.user
         if user.is_staff:
             return ReferralWithdrawal.objects.all()

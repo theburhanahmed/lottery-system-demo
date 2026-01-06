@@ -11,6 +11,7 @@ class Transaction(models.Model):
         ('WITHDRAWAL', 'Withdrawal'),
         ('REFUND', 'Refund'),
         ('ADMIN_ADJUSTMENT', 'Admin Adjustment'),
+        ('REFERRAL_BONUS', 'Referral Bonus'),
     ]
 
     STATUS_CHOICES = [

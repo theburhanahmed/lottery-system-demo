@@ -1,5 +1,5 @@
 from django.contrib import admin
-from apps.lotteries.models import Lottery, Ticket, Winner, LotteryDrawLog
+from apps.lotteries.models import Lottery, Ticket, Winner, LotteryDrawLog, LotteryTemplate
 
 
 @admin.register(Lottery)
@@ -38,3 +38,11 @@ class LotteryDrawLogAdmin(admin.ModelAdmin):
     list_filter = ['drawn_at', 'lottery']
     search_fields = ['lottery__name', 'conducted_by__username']
     readonly_fields = ['drawn_at', 'random_seed']
+
+
+@admin.register(LotteryTemplate)
+class LotteryTemplateAdmin(admin.ModelAdmin):
+    list_display = ['name', 'ticket_price', 'prize_amount', 'total_tickets', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'description']
+    readonly_fields = ['created_at', 'updated_at']

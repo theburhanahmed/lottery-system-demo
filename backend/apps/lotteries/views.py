@@ -3,6 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
 from django.db.models import Count
+from django.core.cache import cache
+from apps.common.cache import CacheKeys
 import random
 import secrets
 
@@ -12,7 +14,12 @@ from apps.lotteries.serializers import (
     LotteryDrawLogSerializer
 )
 from apps.transactions.models import Transaction
-from apps.users.models import AuditLog, UserProfile
+from apps.users.models import AuditLog, UserProfile, User
+from apps.notifications.tasks import (
+    send_ticket_purchase_confirmation_task,
+    send_draw_result_win_task,
+    send_draw_result_loss_task
+)
 
 
 class LotteryViewSet(viewsets.ModelViewSet):
@@ -23,6 +30,11 @@ class LotteryViewSet(viewsets.ModelViewSet):
     filterset_fields = ['status']
     ordering_fields = ['created_at', 'draw_date']
     ordering = ['-created_at']
+
+    def get_queryset(self):
+        """Optimize queries with select_related and prefetch_related"""
+        queryset = Lottery.objects.select_related('created_by').prefetch_related('ticket_set', 'winners')
+        return queryset
 
     def create(self, request, *args, **kwargs):
         """Create new lottery (admin only)"""
@@ -63,7 +75,25 @@ class LotteryViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def buy_ticket(self, request, pk=None):
         """Purchase a lottery ticket"""
+        from apps.users.responsible_gaming import ResponsibleGamingService
+        
         lottery = self.get_object()
+
+        # Check self-exclusion
+        is_excluded, exclusion_reason = ResponsibleGamingService.check_self_exclusion(request.user)
+        if is_excluded:
+            return Response(
+                {'error': exclusion_reason},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Check session time
+        is_valid, error_msg, minutes_remaining = ResponsibleGamingService.check_session_time(request.user)
+        if not is_valid:
+            return Response(
+                {'error': error_msg},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         # Validation
         if not lottery.is_active():
@@ -77,6 +107,19 @@ class LotteryViewSet(viewsets.ModelViewSet):
                 {'error': 'Insufficient balance'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Check loss limit
+        is_valid, error_message = ResponsibleGamingService.check_loss_limit(request.user, lottery.ticket_price)
+        if not is_valid:
+            return Response(
+                {'error': error_message},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Update session start if not set
+        if not request.user.last_session_start:
+            request.user.last_session_start = timezone.now()
+            request.user.save()
 
         # Generate ticket number
         last_ticket = Ticket.objects.filter(lottery=lottery).order_by('ticket_number').last()
@@ -119,6 +162,13 @@ class LotteryViewSet(viewsets.ModelViewSet):
             description=f'Bought ticket #{ticket_number} for lottery: {lottery.name}'
         )
 
+        # Send ticket purchase confirmation email asynchronously
+        send_ticket_purchase_confirmation_task.delay(
+            str(request.user.id),
+            str(ticket.id),
+            str(lottery.id)
+        )
+
         return Response(
             {
                 'message': 'Ticket purchased successfully',
@@ -131,20 +181,32 @@ class LotteryViewSet(viewsets.ModelViewSet):
     def results(self, request, pk=None):
         """Get lottery results"""
         lottery = self.get_object()
-        winners = Winner.objects.filter(lottery=lottery)
+        
+        # Cache lottery results
+        cache_key = CacheKeys.lottery_detail(lottery.id) + '_results'
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return Response(cached_result)
+        
+        winners = Winner.objects.filter(lottery=lottery).select_related('user', 'ticket')
         serializer = WinnerSerializer(winners, many=True)
-        return Response({
+        result = {
             'lottery': LotterySerializer(lottery).data,
             'winners': serializer.data,
             'total_winners': winners.count()
-        })
+        }
+        
+        # Cache for 2 minutes
+        cache.set(cache_key, result, 120)
+        
+        return Response(result)
 
     @action(detail=True, methods=['get'])
     def winner(self, request, pk=None):
         """Get lottery winner"""
         lottery = self.get_object()
         try:
-            winner = Winner.objects.get(lottery=lottery)
+            winner = Winner.objects.select_related('user', 'ticket').get(lottery=lottery)
             return Response(WinnerSerializer(winner).data)
         except Winner.DoesNotExist:
             return Response(
@@ -227,6 +289,22 @@ class LotteryViewSet(viewsets.ModelViewSet):
             description=f'Lottery draw conducted for {lottery.name}. Winner: {winner.user.username}'
         )
 
+        # Send draw result emails asynchronously
+        # Send win email to winner
+        send_draw_result_win_task.delay(
+            str(winner.user.id),
+            str(winner.id),
+            str(lottery.id)
+        )
+
+        # Send loss emails to all other participants
+        losing_tickets = tickets.exclude(id=winning_ticket.id)
+        for ticket in losing_tickets:
+            send_draw_result_loss_task.delay(
+                str(ticket.user.id),
+                str(lottery.id)
+            )
+
         return Response(
             {
                 'message': 'Draw conducted successfully',
@@ -289,6 +367,57 @@ class TicketViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
     ordering = ['-purchased_at']
+    filterset_fields = ['lottery', 'is_winner']
 
     def get_queryset(self):
-        return Ticket.objects.filter(user=self.request.user)
+        # Handle schema generation (drf_yasg uses AnonymousUser)
+        if getattr(self, 'swagger_fake_view', False):
+            return Ticket.objects.none()
+        
+        # Check if user is authenticated
+        if not self.request.user.is_authenticated:
+            return Ticket.objects.none()
+        
+        queryset = Ticket.objects.filter(user=self.request.user).select_related('lottery')
+        
+        # Filter by lottery status
+        lottery_status = self.request.query_params.get('lottery_status')
+        if lottery_status:
+            queryset = queryset.filter(lottery__status=lottery_status)
+        
+        # Filter by winning status
+        is_winner = self.request.query_params.get('is_winner')
+        if is_winner is not None:
+            queryset = queryset.filter(is_winner=is_winner.lower() == 'true')
+        
+        return queryset
+    
+    @action(detail=False, methods=['get'])
+    def all(self, request):
+        """Get all user tickets with enhanced filtering"""
+        queryset = self.get_queryset()
+        
+        # Filter by lottery name (search)
+        search = request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(lottery__name__icontains=search)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        
+        # Add lottery information to each ticket
+        tickets_data = []
+        for ticket in queryset:
+            ticket_data = serializer.data[queryset.index(ticket)] if queryset else {}
+            ticket_data['lottery'] = {
+                'id': str(ticket.lottery.id),
+                'name': ticket.lottery.name,
+                'status': ticket.lottery.status,
+                'draw_date': ticket.lottery.draw_date.isoformat() if ticket.lottery.draw_date else None,
+            }
+            tickets_data.append(ticket_data)
+        
+        return Response({
+            'tickets': tickets_data,
+            'count': queryset.count(),
+            'winning_count': queryset.filter(is_winner=True).count(),
+        })

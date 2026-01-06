@@ -17,9 +17,9 @@ class TransactionAdmin(admin.ModelAdmin):
 
 @admin.register(PaymentMethod)
 class PaymentMethodAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'type', 'is_primary', 'is_verified', 'created_at']
-    list_filter = ['type', 'is_primary', 'is_verified', 'created_at']
-    search_fields = ['user__username', 'name']
+    list_display = ['id', 'user', 'method_type', 'is_primary', 'is_active', 'created_at']
+    list_filter = ['method_type', 'is_primary', 'is_active', 'created_at']
+    search_fields = ['user__username', 'method_type']
     readonly_fields = ['created_at']
 
 

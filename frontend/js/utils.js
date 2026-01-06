@@ -1,93 +1,186 @@
 // Utility Functions
-const utils = {
-    // Format currency
-    formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    },
+const UTILS = {
+  // Debounce function
+  debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+  },
 
-    // Format date
-    formatDate(date, format = 'short') {
-        const d = new Date(date);
-        if (format === 'short') {
-            return d.toLocaleDateString();
-        } else if (format === 'long') {
-            return d.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            });
-        } else if (format === 'datetime') {
-            return d.toLocaleString();
+  // Throttle function
+  throttle(func, limit) {
+    let lastFunc;
+    let lastRan;
+    return function(...args) {
+      if (!lastRan) {
+        func.apply(this, args);
+        lastRan = Date.now();
+      } else {
+        clearTimeout(lastFunc);
+        lastFunc = setTimeout(() => {
+          if (Date.now() - lastRan >= limit) {
+            func.apply(this, args);
+            lastRan = Date.now();
+          }
+        }, limit - (Date.now() - lastRan));
+      }
+    };
+  },
+
+  // Validate email
+  isValidEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  },
+
+  // Validate required fields
+  validateRequired(value) {
+    return value && value.trim() !== '';
+  },
+
+  // Validate number
+  isValidNumber(value) {
+    const num = parseFloat(value);
+    return !isNaN(num) && num > 0;
+  },
+
+  // Validate password
+  isValidPassword(password) {
+    return password && password.length >= 6;
+  },
+
+  // Get query parameter from URL
+  getQueryParam(param) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(param);
+  },
+
+  // Parse hash route
+  parseRoute() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) {
+      return { base: 'home', id: null, path: '/' };
+    }
+    
+    const [path, ...queryParts] = hash.split('?');
+    const parts = path.split('/');
+    const base = parts[0] || 'home';
+    const id = parts[1] || null;
+    
+    return { base, id, path };
+  },
+
+  // Format number with commas
+  formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  },
+
+  // Get difference in days
+  daysDifference(date1, date2) {
+    const oneDay = 24 * 60 * 60 * 1000;
+    return Math.round(Math.abs((new Date(date1) - new Date(date2)) / oneDay));
+  },
+
+  // Check if date is in past
+  isPast(dateString) {
+    return new Date(dateString) < new Date();
+  },
+
+  // Check if date is in future
+  isFuture(dateString) {
+    return new Date(dateString) > new Date();
+  },
+
+  // Capitalize string
+  capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  },
+
+  // Slugify string
+  slugify(str) {
+    return str
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  },
+
+  // Deep clone object
+  deepClone(obj) {
+    if (obj === null || typeof obj !== 'object') return obj;
+    if (obj instanceof Date) return new Date(obj);
+    if (obj instanceof Array) return obj.map(item => this.deepClone(item));
+    if (obj instanceof Object) {
+      const cloned = {};
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          cloned[key] = this.deepClone(obj[key]);
         }
-        return d.toString();
-    },
+      }
+      return cloned;
+    }
+  },
 
-    // Generate unique ID
-    generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    },
+  // Merge objects
+  mergeObjects(target, source) {
+    const result = { ...target };
+    for (let key in source) {
+      if (source.hasOwnProperty(key)) {
+        result[key] = source[key];
+      }
+    }
+    return result;
+  },
 
-    // Validate email
-    validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-    },
+  // Filter array
+  filterArray(array, predicate) {
+    return array.filter(predicate);
+  },
 
-    // Validate password
-    validatePassword(password) {
-        return password && password.length >= 6;
-    },
+  // Find in array
+  findInArray(array, predicate) {
+    return array.find(predicate);
+  },
 
-    // Debounce function
-    debounce(func, delay) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-    },
+  // Group array by key
+  groupByKey(array, key) {
+    return array.reduce((result, item) => {
+      (result[item[key]] = result[item[key]] || []).push(item);
+      return result;
+    }, {});
+  },
 
-    // Throttle function
-    throttle(func, limit) {
-        let inThrottle;
-        return function (...args) {
-            if (!inThrottle) {
-                func.apply(this, args);
-                inThrottle = true;
-                setTimeout(() => (inThrottle = false), limit);
-            }
-        };
-    },
+  // Sort array
+  sortArray(array, key, desc = false) {
+    return [...array].sort((a, b) => {
+      if (a[key] < b[key]) return desc ? 1 : -1;
+      if (a[key] > b[key]) return desc ? -1 : 1;
+      return 0;
+    });
+  },
 
-    // Clone object
-    clone(obj) {
-        return JSON.parse(JSON.stringify(obj));
-    },
+  // Remove duplicates
+  removeDuplicates(array, key) {
+    const seen = new Set();
+    return array.filter(item => {
+      const value = key ? item[key] : item;
+      if (seen.has(value)) return false;
+      seen.add(value);
+      return true;
+    });
+  },
 
-    // Merge objects
-    merge(target, source) {
-        return Object.assign({}, target, source);
-    },
+  // Paginate array
+  paginate(array, pageNum, pageSize) {
+    const startIndex = (pageNum - 1) * pageSize;
+    return array.slice(startIndex, startIndex + pageSize);
+  },
 
-    // Get value from nested object
-    getNestedValue(obj, path) {
-        return path.split('.').reduce((current, prop) => current?.[prop], obj);
-    },
-
-    // Set value in nested object
-    setNestedValue(obj, path, value) {
-        const keys = path.split('.');
-        let current = obj;
-        for (let i = 0; i < keys.length - 1; i++) {
-            if (!(keys[i] in current)) {
-                current[keys[i]] = {};
-            }
-            current = current[keys[i]];
-        }
-        current[keys[keys.length - 1]] = value;
-        return obj;
-    },
+  // Get total pages
+  getTotalPages(arrayLength, pageSize) {
+    return Math.ceil(arrayLength / pageSize);
+  }
 };

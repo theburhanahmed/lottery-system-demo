@@ -14,7 +14,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lottery_user"]
+      test: ["CMD-SHELL", "pg_isready -U lottery_user -d lottery_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,7 +27,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: lottery_backend
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 --workers 3 lottery.wsgi:application"
     environment:
       DEBUG: "True"
       SECRET_KEY: "django-insecure-demo-key-change-in-production"
@@ -37,14 +37,86 @@ services:
       DB_PASSWORD: "lottery_password"
       DB_HOST: "db"
       DB_PORT: "5432"
-      CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080,http://localhost"
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+      REDIS_URL: "redis://redis:6379/1"
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/api/health/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - lottery_network
+
+  # Celery Worker
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lottery_celery_worker
+    command: celery -A lottery worker -l info
+    environment:
+      DEBUG: "True"
+      SECRET_KEY: "django-insecure-demo-key-change-in-production"
+      DB_ENGINE: "django.db.backends.postgresql"
+      DB_NAME: "lottery_db"
+      DB_USER: "lottery_user"
+      DB_PASSWORD: "lottery_password"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
     volumes:
       - ./backend:/app
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - lottery_network
+
+  # Celery Beat
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lottery_celery_beat
+    command: celery -A lottery beat -l info
+    environment:
+      DEBUG: "True"
+      SECRET_KEY: "django-insecure-demo-key-change-in-production"
+      DB_ENGINE: "django.db.backends.postgresql"
+      DB_NAME: "lottery_db"
+      DB_USER: "lottery_user"
+      DB_PASSWORD: "lottery_password"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
     networks:
       - lottery_network
 
@@ -58,6 +130,8 @@ services:
     volumes:
       - ./frontend:/usr/share/nginx/html
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    command: >
+      sh -c "rm -f /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
     depends_on:
       - backend
     networks:
@@ -77,6 +151,8 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  static_volume:
+  media_volume:
 
 networks:
   lottery_network:

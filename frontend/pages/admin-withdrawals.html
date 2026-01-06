@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Withdrawals - Lottery System</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <a href="../index.html" class="logo">🎰 Lottery System</a>
+      <button id="hamburger">☰</button>
+      <ul class="nav-links" id="navbarMenu">
+        <li><a href="../index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="./admin-dashboard.html" class="nav-link" data-page="admin-dashboard">Dashboard</a></li>
+        <li><a href="./admin-withdrawals.html" class="nav-link active" data-page="admin-withdrawals">Withdrawals</a></li>
+      </ul>
+      <div id="navUser" style="display: none; gap: 15px; align-items: center;">
+        <div class="user-section">
+          <span>💰 <strong id="walletDisplay">$0.00</strong></span>
+        </div>
+        <span id="userName"></span>
+        <button id="logoutBtn" class="btn btn--secondary" style="padding: 8px 12px; font-size: 12px;">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Admin Withdrawals Page -->
+  <div class="page active">
+    <div class="container" style="margin-top: 40px;">
+      <h2>Withdrawal Management</h2>
+      
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card__body">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+              <label>Status</label>
+              <select id="statusFilter" class="form-control">
+                <option value="">All</option>
+                <option value="REQUESTED">Requested</option>
+                <option value="APPROVED">Approved</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+            </div>
+            <div>
+              <label>Start Date</label>
+              <input type="date" id="startDateFilter" class="form-control">
+            </div>
+            <div>
+              <label>End Date</label>
+              <input type="date" id="endDateFilter" class="form-control">
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button class="btn btn--primary" onclick="loadWithdrawals()" style="width: 100%;">Filter</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Withdrawals List -->
+      <div class="card">
+        <div class="card__header">Withdrawal Requests</div>
+        <div class="card__body">
+          <div id="withdrawalsList">
+            <p>Loading withdrawals...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdrawal Detail Modal -->
+  <div id="withdrawalModal" class="modal">
+    <div class="modal__content" style="max-width: 600px;">
+      <span class="modal__close" onclick="closeWithdrawalModal()">&times;</span>
+      <div class="modal__header">Withdrawal Details</div>
+      <div class="modal__body" id="withdrawalModalBody">
+        <!-- Content loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    // Load withdrawals on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      if (Auth.isAuthenticated()) {
+        loadWithdrawals();
+      } else {
+        window.location.hash = '#/login';
+      }
+    });
+
+    async function loadWithdrawals() {
+      try {
+        const status = document.getElementById('statusFilter').value;
+        const startDate = document.getElementById('startDateFilter').value;
+        const endDate = document.getElementById('endDateFilter').value;
+
+        let url = '/api/withdrawals/admin_list/?';
+        if (status) url += `status=${status}&`;
+        if (startDate) url += `start_date=${startDate}&`;
+        if (endDate) url += `end_date=${endDate}&`;
+
+        const data = await API.request(url);
+        displayWithdrawals(data.results || data);
+      } catch (error) {
+        UI.showToast('Error loading withdrawals: ' + error.message, 'error');
+      }
+    }
+
+    function displayWithdrawals(withdrawals) {
+      const container = document.getElementById('withdrawalsList');
+      
+      if (!withdrawals || withdrawals.length === 0) {
+        container.innerHTML = '<p>No withdrawals found</p>';
+        return;
+      }
+
+      let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr>';
+      html += '<th>User</th><th>Amount</th><th>Status</th><th>Requested</th><th>Actions</th>';
+      html += '</tr></thead><tbody>';
+
+      withdrawals.forEach(w => {
+        html += `<tr>
+          <td>${w.user?.username || 'N/A'}</td>
+          <td>$${w.amount}</td>
+          <td><span class="badge badge-${w.status.toLowerCase()}">${w.status}</span></td>
+          <td>${new Date(w.requested_at).toLocaleDateString()}</td>
+          <td>
+            <button onclick="viewWithdrawal('${w.id}')" class="btn btn--secondary" style="padding: 4px 8px; font-size: 12px;">View</button>
+            ${w.status === 'REQUESTED' ? `
+              <button onclick="approveWithdrawal('${w.id}')" class="btn btn--primary" style="padding: 4px 8px; font-size: 12px; margin-left: 5px;">Approve</button>
+              <button onclick="rejectWithdrawal('${w.id}')" class="btn btn--danger" style="padding: 4px 8px; font-size: 12px; margin-left: 5px;">Reject</button>
+            ` : ''}
+          </td>
+        </tr>`;
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    async function viewWithdrawal(id) {
+      try {
+        const withdrawal = await API.request(`/api/withdrawals/${id}/`);
+        const modal = document.getElementById('withdrawalModal');
+        const body = document.getElementById('withdrawalModalBody');
+        
+        body.innerHTML = `
+          <p><strong>User:</strong> ${withdrawal.user?.username}</p>
+          <p><strong>Amount:</strong> $${withdrawal.amount}</p>
+          <p><strong>Status:</strong> ${withdrawal.status}</p>
+          <p><strong>Requested:</strong> ${new Date(withdrawal.requested_at).toLocaleString()}</p>
+          ${withdrawal.remarks ? `<p><strong>Remarks:</strong> ${withdrawal.remarks}</p>` : ''}
+        `;
+        
+        modal.style.display = 'block';
+      } catch (error) {
+        UI.showToast('Error loading withdrawal: ' + error.message, 'error');
+      }
+    }
+
+    async function approveWithdrawal(id) {
+      const notes = prompt('Admin notes (optional):');
+      try {
+        await API.request(`/api/withdrawals/${id}/approve/`, {
+          method: 'POST',
+          body: JSON.stringify({ admin_notes: notes || '' })
+        });
+        UI.showToast('Withdrawal approved', 'success');
+        loadWithdrawals();
+        closeWithdrawalModal();
+      } catch (error) {
+        UI.showToast('Error approving withdrawal: ' + error.message, 'error');
+      }
+    }
+
+    async function rejectWithdrawal(id) {
+      const reason = prompt('Rejection reason (required):');
+      if (!reason) {
+        UI.showToast('Rejection reason is required', 'error');
+        return;
+      }
+      try {
+        await API.request(`/api/withdrawals/${id}/reject/`, {
+          method: 'POST',
+          body: JSON.stringify({ rejection_reason: reason })
+        });
+        UI.showToast('Withdrawal rejected', 'success');
+        loadWithdrawals();
+        closeWithdrawalModal();
+      } catch (error) {
+        UI.showToast('Error rejecting withdrawal: ' + error.message, 'error');
+      }
+    }
+
+    function closeWithdrawalModal() {
+      document.getElementById('withdrawalModal').style.display = 'none';
+    }
+
+    // Close modal on outside click
+    window.onclick = function(event) {
+      const modal = document.getElementById('withdrawalModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
+

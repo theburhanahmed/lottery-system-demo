@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
+from django.core.validators import MinValueValidator
 from apps.users.models import User
+from apps.common.constants import TIMEZONE_CHOICES, DEFAULT_MAX_TICKETS_PER_USER, DEFAULT_LOTTERY_TIMEZONE
 import uuid
 import random
 
@@ -23,6 +25,27 @@ class Lottery(models.Model):
     prize_amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='DRAFT')
     draw_date = models.DateTimeField()
+    start_date = models.DateTimeField(null=True, blank=True, help_text='When ticket sales start')
+    end_date = models.DateTimeField(null=True, blank=True, help_text='When ticket sales end')
+    timezone = models.CharField(
+        max_length=50,
+        choices=TIMEZONE_CHOICES,
+        default=DEFAULT_LOTTERY_TIMEZONE,
+        help_text='Timezone for lottery dates'
+    )
+    max_tickets_per_user = models.PositiveIntegerField(
+        default=DEFAULT_MAX_TICKETS_PER_USER,
+        validators=[MinValueValidator(1)],
+        help_text='Maximum tickets a single user can purchase'
+    )
+    auto_draw = models.BooleanField(
+        default=False,
+        help_text='Automatically conduct draw when end_date is reached'
+    )
+    featured = models.BooleanField(
+        default=False,
+        help_text='Feature this lottery on homepage'
+    )
     created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='created_lotteries')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -34,6 +57,8 @@ class Lottery(models.Model):
             models.Index(fields=['status']),
             models.Index(fields=['draw_date']),
             models.Index(fields=['-created_at']),
+            models.Index(fields=['status', 'draw_date']),  # Composite index for common queries
+            models.Index(fields=['featured', '-created_at']),  # For featured lotteries
         ]
 
     def __str__(self):
@@ -53,6 +78,49 @@ class Lottery(models.Model):
 
     def get_revenue(self):
         return self.get_total_tickets_sold() * self.ticket_price
+
+    def is_within_sale_period(self):
+        """Check if current time is within ticket sale period."""
+        now = timezone.now()
+        if self.start_date and now < self.start_date:
+            return False
+        if self.end_date and now > self.end_date:
+            return False
+        return True
+
+    def get_user_ticket_count(self, user):
+        """Get number of tickets purchased by a user for this lottery."""
+        return self.ticket_set.filter(user=user).count()
+
+
+class LotteryTemplate(models.Model):
+    """Template for creating lotteries with predefined settings."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200, help_text='Template name')
+    description = models.TextField(blank=True)
+    ticket_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_tickets = models.IntegerField()
+    prize_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    max_tickets_per_user = models.PositiveIntegerField(
+        default=DEFAULT_MAX_TICKETS_PER_USER,
+        validators=[MinValueValidator(1)]
+    )
+    timezone = models.CharField(
+        max_length=50,
+        choices=TIMEZONE_CHOICES,
+        default=DEFAULT_LOTTERY_TIMEZONE
+    )
+    auto_draw = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True, help_text='Whether template is available for use')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'lottery_templates'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Template: {self.name}"
 
 
 class Ticket(models.Model):
