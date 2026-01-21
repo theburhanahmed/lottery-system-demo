@@ -97,10 +97,17 @@ export const referralService = {
   // Get user's referral link
   async getMyReferralLink(): Promise<ReferralLink> {
     try {
-      const response = await apiClient.get<ReferralLink>(
+      const response = await apiClient.get<any>(
         '/referrals/links/my_link/',
       )
-      return response
+      // Transform backend format to frontend format
+      return {
+        code: response.referral_code || response.code || '',
+        url: response.referral_url || response.url || '',
+        totalReferred: response.total_referred || 0,
+        totalEarned: parseFloat(response.total_bonus_earned || 0),
+        activeReferrals: response.qualified_referrals || 0,
+      }
     } catch (error) {
       throw handleApiError(error)
     }
@@ -109,8 +116,16 @@ export const referralService = {
   // Get referral statistics
   async getStats(): Promise<ReferralStats> {
     try {
-      const response = await apiClient.get<ReferralStats>('/referrals/stats/')
-      return response
+      const response = await apiClient.get<any>('/referrals/stats/')
+      // Transform backend format to frontend format
+      return {
+        totalReferred: response.total_referred || 0,
+        totalEarned: parseFloat(response.total_bonus_earned || 0),
+        availableBalance: parseFloat(response.available_balance || 0),
+        pendingBonuses: response.pending_referrals || 0,
+        expiredBonuses: 0, // Backend doesn't track this separately
+        totalWithdrawals: parseFloat(response.total_withdrawn || 0),
+      }
     } catch (error) {
       throw handleApiError(error)
     }
@@ -119,22 +134,72 @@ export const referralService = {
   // Get user's referrals
   async getMyReferrals(): Promise<Referral[]> {
     try {
-      const response = await apiClient.get<Referral[]>(
+      const response = await apiClient.get<any>(
         '/referrals/my_referrals/',
       )
-      return response
+      // Handle paginated response or direct array
+      const referrals = Array.isArray(response) 
+        ? response 
+        : (response.results || response.data || [])
+      
+      // Transform backend format to frontend format
+      return referrals.map((item: any) => ({
+        id: item.id.toString(),
+        referrerId: item.referrer?.id?.toString() || item.referrer_id?.toString() || '',
+        referrerName: item.referrer?.username || item.referrer_name || '',
+        referredUserId: item.referred_user?.id?.toString() || item.referred_user_id?.toString() || '',
+        referredUserName: item.referred_user?.username || item.referred_user_name || '',
+        referredUserEmail: item.referred_user?.email || item.referred_user_email || '',
+        status: this.mapReferralStatus(item.status),
+        bonusAmount: parseFloat(item.referrer_bonus || item.bonus_amount || 0),
+        expiryDate: item.bonus_expiry_date || item.expiry_date || '',
+        createdAt: item.created_at || new Date().toISOString(),
+        depositedAt: item.deposit_date || item.deposited_at,
+        approvedAt: item.bonus_awarded_at || item.approved_at,
+      }))
     } catch (error) {
       throw handleApiError(error)
     }
   },
 
+  // Map backend referral status to frontend status
+  mapReferralStatus(status: string): 'pending' | 'active' | 'completed' | 'expired' {
+    const statusMap: Record<string, 'pending' | 'active' | 'completed' | 'expired'> = {
+      'PENDING': 'pending',
+      'QUALIFIED': 'active',
+      'BONUS_AWARDED': 'completed',
+      'REJECTED': 'pending',
+      'EXPIRED': 'expired',
+    }
+    return statusMap[status.toUpperCase()] || 'pending'
+  },
+
   // Get all referrals (admin)
   async getAllReferrals(status?: string): Promise<Referral[]> {
     try {
-      const response = await apiClient.get<Referral[]>('/referrals/', {
+      const response = await apiClient.get<any>('/referrals/referrals/', {
         params: { status },
       })
-      return response
+      // Handle paginated response or direct array
+      const referrals = Array.isArray(response) 
+        ? response 
+        : (response.results || response.data || [])
+      
+      // Transform backend format to frontend format
+      return referrals.map((item: any) => ({
+        id: item.id.toString(),
+        referrerId: item.referrer?.id?.toString() || item.referrer_id?.toString() || '',
+        referrerName: item.referrer?.username || item.referrer_name || '',
+        referredUserId: item.referred_user?.id?.toString() || item.referred_user_id?.toString() || '',
+        referredUserName: item.referred_user?.username || item.referred_user_name || '',
+        referredUserEmail: item.referred_user?.email || item.referred_user_email || '',
+        status: this.mapReferralStatus(item.status),
+        bonusAmount: parseFloat(item.referrer_bonus || item.bonus_amount || 0),
+        expiryDate: item.bonus_expiry_date || item.expiry_date || '',
+        createdAt: item.created_at || new Date().toISOString(),
+        depositedAt: item.deposit_date || item.deposited_at,
+        approvedAt: item.bonus_awarded_at || item.approved_at,
+      }))
     } catch (error) {
       throw handleApiError(error)
     }
@@ -182,11 +247,24 @@ export const referralService = {
     withdrawalMethod: string
   }): Promise<ReferralWithdrawal> {
     try {
-      const response = await apiClient.post<ReferralWithdrawal>(
+      const response = await apiClient.post<any>(
         '/referrals/withdrawals/',
-        data,
+        {
+          amount: data.amount,
+          withdrawal_method: data.withdrawalMethod,
+        },
       )
-      return response
+      // Transform backend format to frontend format
+      return {
+        id: response.id.toString(),
+        userId: response.user?.id?.toString() || response.user_id?.toString() || '',
+        amount: parseFloat(response.amount || 0),
+        withdrawalMethod: response.withdrawal_method || data.withdrawalMethod,
+        status: this.mapWithdrawalStatus(response.status),
+        requestedAt: response.requested_at || new Date().toISOString(),
+        processedAt: response.processed_at,
+        notes: response.admin_notes || response.notes || response.remarks,
+      }
     } catch (error) {
       throw handleApiError(error)
     }
@@ -195,25 +273,67 @@ export const referralService = {
   // Get user's referral withdrawals
   async getMyWithdrawals(): Promise<ReferralWithdrawal[]> {
     try {
-      const response = await apiClient.get<ReferralWithdrawal[]>(
+      const response = await apiClient.get<any>(
         '/referrals/withdrawals/my_withdrawals/',
       )
-      return response
+      // Handle paginated response or direct array
+      const withdrawals = Array.isArray(response) 
+        ? response 
+        : (response.results || response.data || [])
+      
+      // Transform backend format to frontend format
+      return withdrawals.map((item: any) => ({
+        id: item.id.toString(),
+        userId: item.user?.id?.toString() || item.user_id?.toString() || '',
+        amount: parseFloat(item.amount || 0),
+        withdrawalMethod: item.withdrawal_method || 'bank_transfer',
+        status: this.mapWithdrawalStatus(item.status),
+        requestedAt: item.requested_at || new Date().toISOString(),
+        processedAt: item.processed_at,
+        notes: item.admin_notes || item.notes || item.remarks,
+      }))
     } catch (error) {
       throw handleApiError(error)
     }
   },
 
+  // Map backend withdrawal status to frontend status
+  mapWithdrawalStatus(status: string): 'pending' | 'approved' | 'rejected' | 'completed' {
+    const statusMap: Record<string, 'pending' | 'approved' | 'rejected' | 'completed'> = {
+      'PENDING': 'pending',
+      'APPROVED': 'approved',
+      'REJECTED': 'rejected',
+      'PROCESSING': 'approved',
+      'COMPLETED': 'completed',
+    }
+    return statusMap[status.toUpperCase()] || 'pending'
+  },
+
   // Get all referral withdrawals (admin)
   async getAllWithdrawals(status?: string): Promise<ReferralWithdrawal[]> {
     try {
-      const response = await apiClient.get<ReferralWithdrawal[]>(
+      const response = await apiClient.get<any>(
         '/referrals/withdrawals/',
         {
           params: { status },
         },
       )
-      return response
+      // Handle paginated response or direct array
+      const withdrawals = Array.isArray(response) 
+        ? response 
+        : (response.results || response.data || [])
+      
+      // Transform backend format to frontend format
+      return withdrawals.map((item: any) => ({
+        id: item.id.toString(),
+        userId: item.user?.id?.toString() || item.user_id?.toString() || '',
+        amount: parseFloat(item.amount || 0),
+        withdrawalMethod: item.withdrawal_method || 'bank_transfer',
+        status: this.mapWithdrawalStatus(item.status),
+        requestedAt: item.requested_at || new Date().toISOString(),
+        processedAt: item.processed_at,
+        notes: item.admin_notes || item.notes || item.remarks,
+      }))
     } catch (error) {
       throw handleApiError(error)
     }

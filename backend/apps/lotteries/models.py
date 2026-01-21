@@ -46,6 +46,12 @@ class Lottery(models.Model):
         default=False,
         help_text='Feature this lottery on homepage'
     )
+    image = models.ImageField(
+        upload_to='lotteries/',
+        null=True,
+        blank=True,
+        help_text='Cover image for the lottery'
+    )
     created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='created_lotteries')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

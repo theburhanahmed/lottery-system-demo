@@ -1,0 +1,8 @@
+{
+  "projectId": "a51dd1e5-b2e5-43b0-b2ac-7846c2f7e812",
+  "createdAt": 1768987130115,
+  "startupCommands": [
+    "cd backend && pip3 install -r requirements.txt && python3 manage.py migrate && python3 manage.py runserver 8000",
+    "cd frontend-react && npm install && npm run dev"
+  ]
+}

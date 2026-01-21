@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Download } from 'lucide-react';
-import { QRCodeSVG } from 'react-qr-code';
+import QRCode from 'react-qr-code';
 
 interface QRCodeModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ export function QRCodeModal({ isOpen, onClose, code, url }: QRCodeModalProps) {
   return <Modal isOpen={isOpen} onClose={onClose} title="Your Referral QR Code">
       <div className="space-y-6">
         <div className="bg-white p-8 rounded-lg border-2 border-slate-200 flex items-center justify-center">
-          <QRCodeSVG value={url} size={256} level="H" />
+          <QRCode value={url} size={256} level="H" />
         </div>
 
         <div className="bg-slate-50 p-4 rounded-lg text-center">

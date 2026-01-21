@@ -586,31 +586,93 @@ const APP = {
     }
     
     try {
-      const user = AUTH.getUser();
-      const profile = user.profile;
+      // Use dashboard_summary endpoint for comprehensive data
+      const dashboardData = await API.users.getDashboardSummary();
+      
+      // Update wallet balance
+      if (document.getElementById('dashboardBalance')) {
+        document.getElementById('dashboardBalance').textContent = UI.formatCurrency(dashboardData.wallet_balance || 0);
+      }
+      
+      // Update stats
+      if (dashboardData.stats) {
+        if (document.getElementById('statTickets')) {
+          document.getElementById('statTickets').textContent = dashboardData.stats.tickets_bought || 0;
+        }
+        if (document.getElementById('statSpent')) {
+          document.getElementById('statSpent').textContent = UI.formatCurrency(dashboardData.stats.total_spent || 0);
+        }
+        if (document.getElementById('statWon')) {
+          document.getElementById('statWon').textContent = UI.formatCurrency(dashboardData.stats.total_won || 0);
+        }
+      }
 
-      document.getElementById('dashboardBalance').textContent = UI.formatCurrency(user.wallet_balance);
-      document.getElementById('statTickets').textContent = profile.total_tickets_bought || 0;
-      document.getElementById('statSpent').textContent = UI.formatCurrency(profile.total_spent || 0);
-      document.getElementById('statWon').textContent = UI.formatCurrency(profile.total_won || 0);
+      // Display recent transactions if available
+      const recentActivityEl = document.getElementById('recentActivity');
+      if (recentActivityEl && dashboardData.recent_transactions && dashboardData.recent_transactions.length > 0) {
+        recentActivityEl.innerHTML = dashboardData.recent_transactions.map(trans => `
+          <div style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <p><strong>${trans.type.replace('_', ' ')}</strong> 
+              ${trans.lottery_name ? `<span style="color: #666;">- ${trans.lottery_name}</span>` : ''}
+              <span style="float: right; color: ${trans.amount.startsWith('-') ? '#e74c3c' : '#27ae60'};">
+                ${UI.formatCurrency(trans.amount)}
+              </span>
+            </p>
+            <p style="color: #666; font-size: 12px;">
+              ${new Date(trans.created_at).toLocaleString()} - 
+              <span style="color: ${trans.status === 'COMPLETED' ? '#27ae60' : trans.status === 'PENDING' ? '#f39c12' : '#e74c3c'}">
+                ${trans.status}
+              </span>
+            </p>
+          </div>
+        `).join('');
+      } else if (recentActivityEl) {
+        recentActivityEl.innerHTML = '<p style="color: #999;">No recent activity</p>';
+      }
 
       // Load payment methods
       const response = await API.paymentMethods.list();
       // Handle both paginated and non-paginated responses
       const paymentMethods = Array.isArray(response) ? response : (response.results || []);
       const paymentList = document.getElementById('paymentMethodsList');
-      if (paymentMethods.length === 0) {
-        paymentList.innerHTML = '<p style="color: #666;">No payment methods added yet</p>';
-      } else {
-        paymentList.innerHTML = paymentMethods.map(method => `
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <p><strong>${method.name}</strong> ${method.is_primary ? '<span style="color: #27ae60; font-weight: bold;">✓ Primary</span>' : ''}</p>
-            <p style="color: #666; font-size: 12px;">${method.type}</p>
-          </div>
-        `).join('');
+      if (paymentList) {
+        if (paymentMethods.length === 0) {
+          paymentList.innerHTML = '<p style="color: #666;">No payment methods added yet</p>';
+        } else {
+          paymentList.innerHTML = paymentMethods.map(method => `
+            <div style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <p><strong>${method.name}</strong> ${method.is_primary ? '<span style="color: #27ae60; font-weight: bold;">✓ Primary</span>' : ''}</p>
+              <p style="color: #666; font-size: 12px;">${method.type}</p>
+            </div>
+          `).join('');
+        }
       }
     } catch (error) {
-      UI.showToast('Error loading dashboard', 'error');
+      console.error('Dashboard load error:', error);
+      UI.showToast('Error loading dashboard: ' + (error.message || 'Unknown error'), 'error');
+      
+      // Fallback to basic user data if dashboard_summary fails
+      try {
+        const user = AUTH.getUser();
+        if (user) {
+          if (document.getElementById('dashboardBalance')) {
+            document.getElementById('dashboardBalance').textContent = UI.formatCurrency(user.wallet_balance || 0);
+          }
+          if (user.profile) {
+            if (document.getElementById('statTickets')) {
+              document.getElementById('statTickets').textContent = user.profile.total_tickets_bought || 0;
+            }
+            if (document.getElementById('statSpent')) {
+              document.getElementById('statSpent').textContent = UI.formatCurrency(user.profile.total_spent || 0);
+            }
+            if (document.getElementById('statWon')) {
+              document.getElementById('statWon').textContent = UI.formatCurrency(user.profile.total_won || 0);
+            }
+          }
+        }
+      } catch (fallbackError) {
+        console.error('Fallback dashboard load error:', fallbackError);
+      }
     }
   },
 

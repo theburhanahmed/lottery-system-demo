@@ -43,7 +43,10 @@ const statusConfig = {
 };
 
 export function WithdrawalHistory({ withdrawals }: WithdrawalHistoryProps) {
-  if (withdrawals.length === 0) {
+  // Ensure withdrawals is always an array
+  const safeWithdrawals = Array.isArray(withdrawals) ? withdrawals : []
+  
+  if (safeWithdrawals.length === 0) {
     return <Card>
         <CardHeader>
           <CardTitle>Withdrawal History</CardTitle>
@@ -74,7 +77,7 @@ export function WithdrawalHistory({ withdrawals }: WithdrawalHistoryProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {withdrawals.map(withdrawal => {
+              {safeWithdrawals.map(withdrawal => {
                 const config = statusConfig[withdrawal.status];
                 const Icon = config.icon;
                 return (

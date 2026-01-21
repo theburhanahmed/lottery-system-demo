@@ -50,14 +50,19 @@ export const walletService = {
     limit?: number
   }): Promise<Transaction[]> {
     try {
-      const response = await apiClient.get<any[]>(
+      const response = await apiClient.get<any>(
         '/transactions/',
         {
           params: filters,
         },
       )
+      // Handle paginated response or direct array
+      const transactions = Array.isArray(response) 
+        ? response 
+        : (response.results || response.data || [])
+      
       // Transform Django format to frontend format
-      return response.map((txn: any) => ({
+      return transactions.map((txn: any) => ({
         id: txn.id.toString(),
         userId: txn.user_id?.toString() || '',
         type: this.mapTransactionType(txn.type),
@@ -93,6 +98,19 @@ export const walletService = {
     return statusMap[status.toUpperCase()] || 'pending'
   },
 
+  // Map Django withdrawal status to frontend status
+  mapWithdrawalStatus(status: string): 'pending' | 'processing' | 'approved' | 'rejected' | 'completed' {
+    const statusMap: Record<string, 'pending' | 'processing' | 'approved' | 'rejected' | 'completed'> = {
+      'REQUESTED': 'pending',
+      'PENDING': 'pending',
+      'PROCESSING': 'processing',
+      'APPROVED': 'approved',
+      'REJECTED': 'rejected',
+      'COMPLETED': 'completed',
+    }
+    return statusMap[status.toUpperCase()] || 'pending'
+  },
+
   // Request Deposit (creates payment intent)
   async requestDeposit(
     data: DepositRequest,
@@ -113,11 +131,20 @@ export const walletService = {
     data: WithdrawalRequest,
   ): Promise<WithdrawalResponse> {
     try {
-      const response = await apiClient.post<WithdrawalResponse>(
+      const response = await apiClient.post<any>(
         '/withdrawals/',
         data,
       )
-      return response
+      // Transform Django format to frontend format
+      return {
+        id: response.id.toString(),
+        amount: parseFloat(response.amount || 0),
+        status: this.mapWithdrawalStatus(response.status),
+        withdrawalMethod: response.payment_method?.method_type || response.withdrawal_method || data.withdrawalMethod,
+        requestedAt: response.requested_at || new Date().toISOString(),
+        processedAt: response.processed_at,
+        notes: response.remarks || response.notes,
+      }
     } catch (error) {
       throw handleApiError(error)
     }
@@ -127,8 +154,32 @@ export const walletService = {
   async getWithdrawals(): Promise<WithdrawalResponse[]> {
     try {
       const response =
-        await apiClient.get<WithdrawalResponse[]>('/withdrawals/')
-      return response
+        await apiClient.get<any>('/withdrawals/')
+      
+      // Handle paginated response or direct array
+      if (Array.isArray(response)) {
+        return response.map((item: any) => ({
+          id: item.id.toString(),
+          amount: parseFloat(item.amount || 0),
+          status: this.mapWithdrawalStatus(item.status),
+          withdrawalMethod: item.payment_method?.method_type || item.withdrawal_method || 'bank_transfer',
+          requestedAt: item.requested_at || new Date().toISOString(),
+          processedAt: item.processed_at,
+          notes: item.remarks || item.notes,
+        }))
+      }
+      
+      // If paginated response
+      const withdrawals = response.results || response.data || []
+      return withdrawals.map((item: any) => ({
+        id: item.id.toString(),
+        amount: parseFloat(item.amount || 0),
+        status: this.mapWithdrawalStatus(item.status),
+        withdrawalMethod: item.payment_method?.method_type || item.withdrawal_method || 'bank_transfer',
+        requestedAt: item.requested_at || new Date().toISOString(),
+        processedAt: item.processed_at,
+        notes: item.remarks || item.notes,
+      }))
     } catch (error) {
       throw handleApiError(error)
     }
@@ -137,13 +188,27 @@ export const walletService = {
   // Get All Withdrawals (Admin)
   async getAllWithdrawals(status?: string): Promise<WithdrawalResponse[]> {
     try {
-      const response = await apiClient.get<WithdrawalResponse[]>(
+      const response = await apiClient.get<any>(
         '/withdrawals/',
         {
           params: { status },
         },
       )
-      return response
+      
+      // Handle paginated response or direct array
+      const withdrawals = Array.isArray(response) 
+        ? response 
+        : (response.results || response.data || [])
+      
+      return withdrawals.map((item: any) => ({
+        id: item.id.toString(),
+        amount: parseFloat(item.amount || 0),
+        status: this.mapWithdrawalStatus(item.status),
+        withdrawalMethod: item.payment_method?.method_type || item.withdrawal_method || 'bank_transfer',
+        requestedAt: item.requested_at || new Date().toISOString(),
+        processedAt: item.processed_at,
+        notes: item.remarks || item.notes,
+      }))
     } catch (error) {
       throw handleApiError(error)
     }

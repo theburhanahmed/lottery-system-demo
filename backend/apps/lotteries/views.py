@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.db.models import Count
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from apps.common.cache import CacheKeys
 import random
 import secrets
@@ -36,6 +37,29 @@ class LotteryViewSet(viewsets.ModelViewSet):
         queryset = Lottery.objects.select_related('created_by').prefetch_related('ticket_set', 'winners')
         return queryset
 
+    def _validate_image(self, image_file):
+        """Validate uploaded image file."""
+        if not image_file:
+            return None, None
+        
+        # Check file size (5MB max)
+        max_size = 5 * 1024 * 1024  # 5MB
+        if image_file.size > max_size:
+            return None, {'image': ['Image file size exceeds 5MB limit.']}
+        
+        # Check file type
+        allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+        if image_file.content_type not in allowed_types:
+            return None, {'image': ['Invalid image format. Allowed formats: JPEG, PNG, WebP.']}
+        
+        # Check file extension as additional validation
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp']
+        file_name = image_file.name.lower()
+        if not any(file_name.endswith(ext) for ext in allowed_extensions):
+            return None, {'image': ['Invalid file extension. Allowed: .jpg, .jpeg, .png, .webp']}
+        
+        return image_file, None
+
     def create(self, request, *args, **kwargs):
         """Create new lottery (admin only)"""
         if not request.user.is_admin:
@@ -43,7 +67,20 @@ class LotteryViewSet(viewsets.ModelViewSet):
                 {'error': 'Only admins can create lotteries'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        serializer = self.get_serializer(data=request.data)
+        
+        # Validate image if provided
+        image_file = request.FILES.get('image')
+        if image_file:
+            validated_image, image_errors = self._validate_image(image_file)
+            if image_errors:
+                return Response(image_errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create a mutable copy of request.data for file handling
+        data = request.data.copy()
+        if image_file:
+            data['image'] = validated_image
+        
+        serializer = self.get_serializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save(created_by=request.user)
             AuditLog.objects.create(
@@ -61,7 +98,26 @@ class LotteryViewSet(viewsets.ModelViewSet):
                 {'error': 'Only admins can update lotteries'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        return super().update(request, *args, **kwargs)
+        
+        # Validate image if provided
+        image_file = request.FILES.get('image')
+        if image_file:
+            validated_image, image_errors = self._validate_image(image_file)
+            if image_errors:
+                return Response(image_errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create a mutable copy of request.data for file handling
+        data = request.data.copy()
+        if image_file:
+            data['image'] = validated_image
+        
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data, partial=partial, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, *args, **kwargs):
         """Delete lottery (admin only)"""

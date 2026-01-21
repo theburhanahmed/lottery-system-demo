@@ -9,7 +9,7 @@ export interface CreateLotteryRequest {
   totalTickets: number
   prizePool: number
   drawDate: string
-  imageUrl?: string
+  imageUrl?: string | File  // Can be a URL string or File object for upload
   maxTicketsPerUser?: number
 }
 
@@ -117,15 +117,45 @@ export const lotteryService = {
   // Create lottery (admin)
   async createLottery(data: CreateLotteryRequest): Promise<Lottery> {
     try {
-      const response = await apiClient.post<any>('/lotteries/', {
-        name: data.name,
-        description: data.description,
-        ticket_price: data.ticketPrice,
-        total_tickets: data.totalTickets,
-        prize_amount: data.prizePool,
-        draw_date: data.drawDate,
-        status: 'ACTIVE',
-      })
+      let requestData: any
+      let config: any = {}
+
+      // If image is provided as File, use FormData for multipart/form-data upload
+      if (data.imageUrl && typeof data.imageUrl === 'object' && data.imageUrl instanceof File) {
+        const formData = new FormData()
+        formData.append('name', data.name)
+        formData.append('description', data.description)
+        formData.append('ticket_price', data.ticketPrice.toString())
+        formData.append('total_tickets', data.totalTickets.toString())
+        formData.append('prize_amount', data.prizePool.toString())
+        formData.append('draw_date', data.drawDate)
+        formData.append('status', 'ACTIVE')
+        formData.append('image', data.imageUrl)
+        if (data.maxTicketsPerUser) {
+          formData.append('max_tickets_per_user', data.maxTicketsPerUser.toString())
+        }
+        requestData = formData
+        // Remove Content-Type header to let browser set it with boundary for FormData
+        config.headers = {
+          'Content-Type': undefined,
+        }
+      } else {
+        // Regular JSON request
+        requestData = {
+          name: data.name,
+          description: data.description,
+          ticket_price: data.ticketPrice,
+          total_tickets: data.totalTickets,
+          prize_amount: data.prizePool,
+          draw_date: data.drawDate,
+          status: 'ACTIVE',
+        }
+        if (data.maxTicketsPerUser) {
+          requestData.max_tickets_per_user = data.maxTicketsPerUser
+        }
+      }
+
+      const response = await apiClient.post<any>('/lotteries/', requestData, config)
       return this.getLottery(response.id.toString())
     } catch (error) {
       throw handleApiError(error)
@@ -138,7 +168,38 @@ export const lotteryService = {
     data: Partial<CreateLotteryRequest>,
   ): Promise<Lottery> {
     try {
-      await apiClient.put(`/lotteries/${id}/`, data)
+      let requestData: any
+      let config: any = {}
+
+      // If image is provided as File, use FormData for multipart/form-data upload
+      if (data.imageUrl && typeof data.imageUrl === 'object' && data.imageUrl instanceof File) {
+        const formData = new FormData()
+        if (data.name) formData.append('name', data.name)
+        if (data.description) formData.append('description', data.description)
+        if (data.ticketPrice !== undefined) formData.append('ticket_price', data.ticketPrice.toString())
+        if (data.totalTickets !== undefined) formData.append('total_tickets', data.totalTickets.toString())
+        if (data.prizePool !== undefined) formData.append('prize_amount', data.prizePool.toString())
+        if (data.drawDate) formData.append('draw_date', data.drawDate)
+        if (data.maxTicketsPerUser) formData.append('max_tickets_per_user', data.maxTicketsPerUser.toString())
+        formData.append('image', data.imageUrl)
+        requestData = formData
+        // Remove Content-Type header to let browser set it with boundary for FormData
+        config.headers = {
+          'Content-Type': undefined,
+        }
+      } else {
+        // Regular JSON request
+        requestData = {}
+        if (data.name) requestData.name = data.name
+        if (data.description) requestData.description = data.description
+        if (data.ticketPrice !== undefined) requestData.ticket_price = data.ticketPrice
+        if (data.totalTickets !== undefined) requestData.total_tickets = data.totalTickets
+        if (data.prizePool !== undefined) requestData.prize_amount = data.prizePool
+        if (data.drawDate) requestData.draw_date = data.drawDate
+        if (data.maxTicketsPerUser) requestData.max_tickets_per_user = data.maxTicketsPerUser
+      }
+
+      await apiClient.put(`/lotteries/${id}/`, requestData, config)
       return this.getLottery(id)
     } catch (error) {
       throw handleApiError(error)
