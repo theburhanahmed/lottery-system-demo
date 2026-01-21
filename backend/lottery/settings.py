@@ -57,10 +57,10 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'apps.common.middleware.CsrfExemptApiMiddleware',  # Custom CSRF middleware that exempts API endpoints
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -227,16 +227,7 @@ SIMPLE_JWT = {
 }
 
 # CORS Configuration
-cors_origins_env = os.environ.get(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:8080,http://localhost:8081,http://127.0.0.1:8081,http://127.0.0.1:5173,http://127.0.0.1:5174'
-)
-CORS_ALLOWED_ORIGINS = [
-    origin.strip() for origin in cors_origins_env.split(',') if origin.strip()
-]
-
-# Make sure the correct variable name is set for django-cors-headers
-
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Security Settings (for production)
