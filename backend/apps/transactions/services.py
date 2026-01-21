@@ -23,6 +23,34 @@ class WithdrawalService:
     MONTHLY_WITHDRAWAL_LIMIT = getattr(settings, 'WITHDRAWAL_MONTHLY_LIMIT', Decimal('5000.00'))
     
     @classmethod
+    def get_referral_bonus_balance(cls, user):
+        """
+        Calculate the total referral bonus balance for a user.
+        This amount is NOT withdrawable.
+        """
+        from apps.referrals.models import ReferralBonus
+        
+        try:
+            bonuses = ReferralBonus.objects.filter(
+                user=user,
+                status='CREDITED'
+            ).aggregate(total=Sum('amount'))
+            return bonuses['total'] or Decimal('0.00')
+        except Exception as e:
+            logger.error(f"Error calculating referral bonus balance: {e}")
+            return Decimal('0.00')
+    
+    @classmethod
+    def get_withdrawable_balance(cls, user):
+        """
+        Calculate the withdrawable balance for a user.
+        This excludes referral bonus amounts which cannot be withdrawn.
+        """
+        referral_balance = cls.get_referral_bonus_balance(user)
+        withdrawable = user.wallet_balance - referral_balance
+        return max(withdrawable, Decimal('0.00'))
+    
+    @classmethod
     def validate_withdrawal_request(cls, user, amount):
         """
         Validate a withdrawal request against all limits and rules.
@@ -47,6 +75,12 @@ class WithdrawalService:
         # Check wallet balance
         if user.wallet_balance < amount:
             return False, 'Insufficient wallet balance'
+        
+        # Check withdrawable balance (excluding referral bonuses)
+        withdrawable_balance = cls.get_withdrawable_balance(user)
+        if amount > withdrawable_balance:
+            referral_balance = cls.get_referral_bonus_balance(user)
+            return False, f'Insufficient withdrawable balance. Your referral bonus of ${referral_balance} cannot be withdrawn. Available for withdrawal: ${withdrawable_balance}'
         
         # Check daily limit
         daily_total = cls.calculate_daily_withdrawals(user, timezone.now().date())
@@ -152,17 +186,21 @@ class WithdrawalService:
         
         daily_total = cls.calculate_daily_withdrawals(user)
         monthly_total = cls.calculate_monthly_withdrawals(user)
+        referral_balance = cls.get_referral_bonus_balance(user)
+        withdrawable_balance = cls.get_withdrawable_balance(user)
         
         limits_info = {
-            'min_amount': cls.MIN_WITHDRAWAL_AMOUNT,
-            'max_amount': cls.MAX_WITHDRAWAL_AMOUNT,
-            'daily_limit': cls.DAILY_WITHDRAWAL_LIMIT,
-            'daily_used': daily_total,
-            'daily_remaining': cls.DAILY_WITHDRAWAL_LIMIT - daily_total,
-            'monthly_limit': cls.MONTHLY_WITHDRAWAL_LIMIT,
-            'monthly_used': monthly_total,
-            'monthly_remaining': cls.MONTHLY_WITHDRAWAL_LIMIT - monthly_total,
-            'wallet_balance': user.wallet_balance,
+            'min_amount': str(cls.MIN_WITHDRAWAL_AMOUNT),
+            'max_amount': str(cls.MAX_WITHDRAWAL_AMOUNT),
+            'daily_limit': str(cls.DAILY_WITHDRAWAL_LIMIT),
+            'daily_used': str(daily_total),
+            'daily_remaining': str(cls.DAILY_WITHDRAWAL_LIMIT - daily_total),
+            'monthly_limit': str(cls.MONTHLY_WITHDRAWAL_LIMIT),
+            'monthly_used': str(monthly_total),
+            'monthly_remaining': str(cls.MONTHLY_WITHDRAWAL_LIMIT - monthly_total),
+            'wallet_balance': str(user.wallet_balance),
+            'referral_balance': str(referral_balance),
+            'withdrawable_balance': str(withdrawable_balance),
         }
         
         return {

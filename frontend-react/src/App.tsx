@@ -16,6 +16,8 @@ import { CreateLottery } from './pages/CreateLottery';
 import { WalletPage } from './pages/WalletPage';
 import { LotteryDetails } from './pages/LotteryDetails';
 import { ReferralDashboard } from './pages/ReferralDashboard';
+import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
 import { WithdrawalApprovalPage } from './pages/admin/WithdrawalApprovalPage';
 import { DrawExecutionPage } from './pages/admin/DrawExecutionPage';
 import { DrawResultsPage } from './pages/DrawResultsPage';
@@ -85,13 +87,15 @@ export function App() {
               {/* User Routes */}
               <Route path="/*" element={<ProtectedRoute requiredRole="user">
                     <Layout>
-                      <Routes>
-                        <Route path="dashboard" element={<UserDashboard />} />
-                        <Route path="wallet" element={<WalletPage />} />
-                        <Route path="referrals" element={<ReferralDashboard />} />
-                        <Route path="lottery/:id" element={<LotteryDetails />} />
-                        <Route path="*" element={<Navigate to="dashboard" />} />
-                      </Routes>
+                        <Routes>
+                          <Route path="dashboard" element={<UserDashboard />} />
+                          <Route path="wallet" element={<WalletPage />} />
+                          <Route path="referrals" element={<ReferralDashboard />} />
+                          <Route path="profile" element={<ProfilePage />} />
+                          <Route path="settings" element={<SettingsPage />} />
+                          <Route path="lottery/:id" element={<LotteryDetails />} />
+                          <Route path="*" element={<Navigate to="dashboard" />} />
+                        </Routes>
                     </Layout>
                   </ProtectedRoute>} />
             </Routes>

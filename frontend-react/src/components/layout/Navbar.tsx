@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWallet } from '../../contexts/WalletContext';
 import { Button } from '../ui/Button';
-import { Ticket, User, Wallet, LogOut, Menu, X, Gift } from 'lucide-react';
+import { Ticket, User, Wallet, LogOut, Menu, X, Gift, Settings } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 export function Navbar() {
@@ -56,16 +56,26 @@ export function Navbar() {
                     </Link>
                   </>}
 
-                <div className="h-6 w-px bg-slate-200 mx-2" />
+                  <div className="h-6 w-px bg-slate-200 mx-2" />
 
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-slate-700">
-                    {user.name}
-                  </span>
-                  <Button variant="ghost" size="sm" onClick={handleLogout} title="Logout">
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </div>
+                  <div className="flex items-center space-x-2">
+                    <Link to="/profile">
+                      <Button variant="ghost" size="sm" title="Profile">
+                        <User className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Link to="/settings">
+                      <Button variant="ghost" size="sm" title="Settings">
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <span className="text-sm font-medium text-slate-700">
+                      {user.name}
+                    </span>
+                    <Button variant="ghost" size="sm" onClick={handleLogout} title="Logout">
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </div>
               </> : <>
                 <Link to="/login">
                   <Button variant="ghost">Login</Button>
@@ -104,12 +114,20 @@ export function Navbar() {
                     <Link to="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50" onClick={() => setIsMenuOpen(false)}>
                       My Tickets
                     </Link>
-                    <Link to="/referrals" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50" onClick={() => setIsMenuOpen(false)}>
-                      <Gift className="inline h-4 w-4 mr-2" />
-                      Referrals
-                    </Link>
-                  </>}
-                <button onClick={handleLogout} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50">
+                      <Link to="/referrals" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50" onClick={() => setIsMenuOpen(false)}>
+                        <Gift className="inline h-4 w-4 mr-2" />
+                        Referrals
+                      </Link>
+                    </>}
+                  <Link to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50" onClick={() => setIsMenuOpen(false)}>
+                    <User className="inline h-4 w-4 mr-2" />
+                    Profile
+                  </Link>
+                  <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50" onClick={() => setIsMenuOpen(false)}>
+                    <Settings className="inline h-4 w-4 mr-2" />
+                    Settings
+                  </Link>
+                  <button onClick={handleLogout} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50">
                   Sign Out
                 </button>
               </> : <>
