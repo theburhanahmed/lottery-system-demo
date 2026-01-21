@@ -357,7 +357,8 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(cached_result)
         
         # User statistics
-        profile = user.profile
+        from apps.users.models import UserProfile
+        profile, created = UserProfile.objects.get_or_create(user=user)
         stats = {
             'tickets_bought': profile.total_tickets_bought,
             'total_spent': str(profile.total_spent),

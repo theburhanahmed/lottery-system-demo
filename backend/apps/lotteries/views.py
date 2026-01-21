@@ -206,7 +206,7 @@ class LotteryViewSet(viewsets.ModelViewSet):
         )
 
         # Update user profile
-        profile = request.user.profile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
         profile.total_spent += float(lottery.ticket_price)
         profile.total_tickets_bought += 1
         profile.save()
@@ -333,7 +333,7 @@ class LotteryViewSet(viewsets.ModelViewSet):
         lottery.save()
 
         # Update user profile
-        profile = winner.user.profile
+        profile, _ = UserProfile.objects.get_or_create(user=winner.user)
         profile.total_won += float(lottery.prize_amount)
         profile.total_wins += 1
         profile.save()

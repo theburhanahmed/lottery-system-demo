@@ -62,19 +62,16 @@ class GDPRService:
         }
         
         # User profile data
-        try:
-            profile = user.profile
-            data['user_profile'] = {
-                'total_spent': str(profile.total_spent),
-                'total_won': str(profile.total_won),
-                'total_tickets_bought': profile.total_tickets_bought,
-                'total_lotteries_participated': profile.total_lotteries_participated,
-                'total_wins': profile.total_wins,
-                'total_referrals': profile.total_referrals,
-                'total_referral_earnings': str(profile.total_referral_earnings),
-            }
-        except UserProfile.DoesNotExist:
-            pass
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        data['user_profile'] = {
+            'total_spent': str(profile.total_spent),
+            'total_won': str(profile.total_won),
+            'total_tickets_bought': profile.total_tickets_bought,
+            'total_lotteries_participated': profile.total_lotteries_participated,
+            'total_wins': profile.total_wins,
+            'total_referrals': profile.total_referrals,
+            'total_referral_earnings': str(profile.total_referral_earnings),
+        }
         
         # Tickets
         tickets = Ticket.objects.filter(user=user)

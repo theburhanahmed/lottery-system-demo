@@ -167,7 +167,7 @@ class ReferralService:
         referral.referrer.referral_link.save()
         
         # Update user profiles
-        referrer_profile = referral.referrer.profile
+        referrer_profile, _ = UserProfile.objects.get_or_create(user=referral.referrer)
         referrer_profile.total_referrals += 1
         referrer_profile.total_referral_earnings += float(program.referral_bonus_amount)
         referrer_profile.save()

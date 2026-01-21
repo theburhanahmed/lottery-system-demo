@@ -89,7 +89,7 @@ class DrawService:
         )
         
         # Update user profile
-        profile = winner.user.profile
+        profile, _ = UserProfile.objects.get_or_create(user=winner.user)
         profile.total_won += float(lottery.prize_amount)
         profile.total_wins += 1
         profile.save()
@@ -207,10 +207,10 @@ class TicketPurchaseService:
         )
         
         # Update user profile
-        profile = user.profile
+        profile, _ = UserProfile.objects.get_or_create(user=user)
         profile.total_spent += float(total_cost)
         profile.total_tickets_bought += quantity
-        if user.profile.total_lotteries_participated == 0 or lottery.id not in [t.lottery.id for t in user.tickets.all()]:
+        if profile.total_lotteries_participated == 0 or lottery.id not in [t.lottery.id for t in user.tickets.all()]:
             profile.total_lotteries_participated += 1
         profile.save()
         
