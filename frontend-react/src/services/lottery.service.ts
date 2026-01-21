@@ -84,9 +84,11 @@ export const lotteryService = {
   mapStatus(status: string): 'upcoming' | 'active' | 'ended' | 'completed' {
     const statusMap: Record<string, 'upcoming' | 'active' | 'ended' | 'completed'> = {
       'ACTIVE': 'active',
+      'DRAFT': 'upcoming',
       'DRAWN': 'completed',
       'COMPLETED': 'completed',
       'CANCELLED': 'ended',
+      'CLOSED': 'ended',
       'UPCOMING': 'upcoming',
     }
     return statusMap[status.toUpperCase()] || 'active'

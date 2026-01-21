@@ -12,7 +12,7 @@ export function UserDashboard() {
   const [dashboardData, setDashboardData] = useState<UserDashboardSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const activeLotteries = lotteries.filter(l => l.status === 'active' || l.status === 'upcoming');
+  const activeLotteries = lotteries.filter(l => l.status === 'active' || l.status === 'upcoming' || l.status === 'ended');
   const myTickets = getUserTickets();
 
   useEffect(() => {
