@@ -24,7 +24,7 @@ export function DrawExecutionPage() {
   const fetchClosedLotteries = async () => {
     setIsLoading(true);
     try {
-      const data = await lotteryService.getLotteries({ status: 'closed' });
+      const data = await lotteryService.getLotteries({ status: 'ended' });
       setLotteries(data);
     } catch (error) {
       console.error('Failed to fetch lotteries:', error);
@@ -49,7 +49,7 @@ export function DrawExecutionPage() {
   };
 
   const canExecuteDraw = (lottery: Lottery): boolean => {
-    return lottery.status === 'closed' && lottery.ticketsSold > 0 && new Date(lottery.drawDate) <= new Date();
+    return lottery.status === 'ended' && lottery.ticketsSold > 0 && new Date(lottery.drawDate) <= new Date();
   };
 
   if (drawResult) {
