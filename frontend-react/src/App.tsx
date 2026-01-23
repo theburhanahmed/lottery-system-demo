@@ -80,8 +80,10 @@ export function App() {
                         <Route path="lottery/create" element={<CreateLottery />} />
                         <Route path="lottery/:id/results" element={<DrawResultsPage />} />
                         <Route path="draw" element={<DrawExecutionPage />} />
-                        <Route path="withdrawals" element={<WithdrawalApprovalPage />} />
-                        <Route path="*" element={<Navigate to="dashboard" />} />
+                          <Route path="withdrawals" element={<WithdrawalApprovalPage />} />
+                          <Route path="profile" element={<ProfilePage />} />
+                          <Route path="settings" element={<SettingsPage />} />
+                          <Route path="*" element={<Navigate to="dashboard" />} />
                       </Routes>
                     </Layout>
                   </ProtectedRoute>} />

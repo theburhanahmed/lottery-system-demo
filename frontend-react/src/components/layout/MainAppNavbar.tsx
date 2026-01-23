@@ -7,27 +7,31 @@ import {
   Gift, 
   User, 
   LayoutDashboard, 
-  BarChart, 
   Settings,
   Home,
   LogIn,
-  UserPlus
+  UserPlus,
+  PlusCircle,
+  Zap,
+  ArrowDownToLine
 } from 'lucide-react';
 
 export function MainAppNavbar() {
   const { user } = useAuth();
 
   const userItems = [
-    { name: 'Dashboard', url: '/dashboard', icon: Ticket },
+    { name: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
     { name: 'Wallet', url: '/wallet', icon: Wallet },
     { name: 'Referrals', url: '/referrals', icon: Gift },
     { name: 'Profile', url: '/profile', icon: User },
+    { name: 'Settings', url: '/settings', icon: Settings },
   ];
 
   const adminItems = [
     { name: 'Dashboard', url: '/org/dashboard', icon: LayoutDashboard },
-    { name: 'Lotteries', url: '/org/lotteries', icon: Ticket },
-    { name: 'Analytics', url: '/org/analytics', icon: BarChart },
+    { name: 'Create', url: '/org/lottery/create', icon: PlusCircle },
+    { name: 'Draw', url: '/org/draw', icon: Zap },
+    { name: 'Withdrawals', url: '/org/withdrawals', icon: ArrowDownToLine },
     { name: 'Settings', url: '/settings', icon: Settings },
   ];
 

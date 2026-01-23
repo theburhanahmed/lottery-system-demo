@@ -39,7 +39,7 @@ export function NavBar({ items, className }: NavBarProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 sm:bottom-10 left-1/2 -translate-x-1/2 z-50 mb-6 px-4 w-full sm:w-auto",
+        "fixed top-0 sm:top-6 left-1/2 -translate-x-1/2 z-50 mt-6 px-4 w-full sm:w-auto",
         className,
       )}
     >
@@ -74,10 +74,10 @@ export function NavBar({ items, className }: NavBarProps) {
                     damping: 30,
                   }}
                 >
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-brand-gold-600 rounded-t-full shadow-[0_-1px_10px_rgba(212,175,55,0.6)]">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-6 bg-brand-gold-600/20 blur-md rounded-full" />
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-6 bg-brand-gold-600/20 blur-md rounded-full" />
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-brand-gold-600/20 blur-sm rounded-full" />
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-brand-gold-600 rounded-b-full shadow-[0_1px_10px_rgba(212,175,55,0.6)]">
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-6 bg-brand-gold-600/20 blur-md rounded-full" />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-6 bg-brand-gold-600/20 blur-md rounded-full" />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-brand-gold-600/20 blur-sm rounded-full" />
                   </div>
                 </motion.div>
               )}
