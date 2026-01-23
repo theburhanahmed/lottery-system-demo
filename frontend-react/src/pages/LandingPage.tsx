@@ -5,6 +5,7 @@ import { Shield, Zap, Users, ArrowRight, Trophy, TrendingUp } from 'lucide-react
 import { lotteryService } from '../services/lottery.service';
 import { Lottery } from '../types';
 import { LotteryCard } from '../components/lottery/LotteryCard';
+import { AdUnit } from '../components/AdUnit';
 
 export function LandingPage() {
   const [lotteries, setLotteries] = useState<Lottery[]>([]);
@@ -57,56 +58,63 @@ export function LandingPage() {
             </div>
           </div>
         </div>
-        </div>
+      </div>
 
-        {/* Featured Lotteries Section */}
-        <div className="py-16 bg-slate-50">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                Featured Lotteries
-              </h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                Choose from our exciting lottery draws and start winning today!
-              </p>
-            </div>
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
-                    <div className="h-40 bg-slate-200 rounded mb-4"></div>
-                    <div className="h-6 bg-slate-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-slate-200 rounded w-full mb-4"></div>
-                    <div className="h-10 bg-slate-200 rounded"></div>
-                  </div>
-                ))}
-              </div>
-            ) : displayLotteries.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {displayLotteries.map(lottery => (
-                  <LotteryCard key={lottery.id} lottery={lottery} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Trophy className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-                <p className="text-slate-500 text-lg">No lotteries available at the moment.</p>
-              </div>
-            )}
-            {lotteries.length > 6 && (
-              <div className="text-center mt-8">
-                <Link to="/signup">
-                  <Button variant="outline" size="lg">
-                    View All Lotteries
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-              </div>
-            )}
+      {/* Featured Lotteries Section */}
+      <div className="py-16 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              Featured Lotteries
+            </h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Choose from our exciting lottery draws and start winning today!
+            </p>
           </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                  <div className="h-40 bg-slate-200 rounded mb-4"></div>
+                  <div className="h-6 bg-slate-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-slate-200 rounded w-full mb-4"></div>
+                  <div className="h-10 bg-slate-200 rounded"></div>
+                </div>
+              ))}
+            </div>
+          ) : displayLotteries.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayLotteries.map(lottery => (
+                <LotteryCard key={lottery.id} lottery={lottery} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Trophy className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 text-lg">No lotteries available at the moment.</p>
+            </div>
+          )}
+          {lotteries.length > 6 && (
+            <div className="text-center mt-8">
+              <Link to="/signup">
+                <Button variant="outline" size="lg">
+                  View All Lotteries
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* CTA Section */}
+      {/* Ad Unit after featured lotteries */}
+      <div className="bg-white border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <AdUnit slot="1234567890" />
+        </div>
+      </div>
+
+      {/* CTA Section */}
       <div className="bg-gradient-to-r from-brand-gold-500 to-brand-gold-600 py-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
@@ -125,4 +133,3 @@ export function LandingPage() {
       </div>
     </div>;
 }
-
