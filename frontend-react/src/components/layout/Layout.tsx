@@ -1,6 +1,5 @@
 import React from 'react';
 import { Navbar } from './Navbar';
-import { MainAppNavbar } from './MainAppNavbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, PlusCircle, Settings, Wallet, ArrowDownToLine, Zap } from 'lucide-react';
@@ -40,7 +39,6 @@ export function Layout({
             </aside>
             <main className="flex-1 min-w-0">{children}</main>
           </div>
-          <MainAppNavbar />
         </div>;
     }
 
@@ -58,7 +56,6 @@ export function Layout({
             </p>
           </div>
         </footer>
-        <MainAppNavbar />
       </div>;
 
 }

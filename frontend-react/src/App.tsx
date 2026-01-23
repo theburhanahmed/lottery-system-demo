@@ -21,7 +21,6 @@ import { SettingsPage } from './pages/SettingsPage';
 import { WithdrawalApprovalPage } from './pages/admin/WithdrawalApprovalPage';
 import { DrawExecutionPage } from './pages/admin/DrawExecutionPage';
 import { DrawResultsPage } from './pages/DrawResultsPage';
-import { NavBarDemo } from './pages/NavBarDemo';
 import { AnalyticsTracker } from './components/AnalyticsTracker';
 
 // Protected Route Wrapper
@@ -64,7 +63,6 @@ export function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
-              <Route path="/navbar-demo" element={<NavBarDemo />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/email-verification" element={<EmailVerification />} />
