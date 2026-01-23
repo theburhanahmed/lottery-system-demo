@@ -6,6 +6,7 @@ import { lotteryService } from '../services/lottery.service';
 import { Lottery } from '../types';
 import { LotteryCard } from '../components/lottery/LotteryCard';
 import { AdUnit } from '../components/AdUnit';
+import { MainAppNavbar } from '../components/layout/MainAppNavbar';
 
 export function LandingPage() {
   const [lotteries, setLotteries] = useState<Lottery[]>([]);
@@ -115,7 +116,7 @@ export function LandingPage() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-brand-gold-500 to-brand-gold-600 py-16">
+      <div className="bg-gradient-to-r from-brand-gold-500 to-brand-gold-600 py-16 mb-20">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready to Change Your Life?
@@ -131,5 +132,6 @@ export function LandingPage() {
           </Link>
         </div>
       </div>
+      <MainAppNavbar />
     </div>;
 }

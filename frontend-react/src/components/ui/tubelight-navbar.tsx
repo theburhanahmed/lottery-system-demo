@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { LucideIcon } from "lucide-react"
 import { cn } from "../../utils/cn"
 
@@ -18,8 +18,16 @@ interface NavBarProps {
 }
 
 export function NavBar({ items, className }: NavBarProps) {
+  const location = useLocation()
   const [activeTab, setActiveTab] = useState(items[0].name)
   const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const activeItem = items.find((item) => item.url === location.pathname)
+    if (activeItem) {
+      setActiveTab(activeItem.name)
+    }
+  }, [location.pathname, items])
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,7 +54,7 @@ export function NavBar({ items, className }: NavBarProps) {
           return (
             <Link
               key={item.name}
-              href={item.url}
+              to={item.url}
               onClick={() => setActiveTab(item.name)}
               className={cn(
                 "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
