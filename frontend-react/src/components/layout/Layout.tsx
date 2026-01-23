@@ -1,5 +1,4 @@
 import React from 'react';
-import { Navbar } from './Navbar';
 import { MainAppNavbar } from './MainAppNavbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -25,7 +24,6 @@ export function Layout({
     ];
 
       return <div className="min-h-screen bg-slate-50 flex flex-col">
-          <Navbar />
           <div className="flex flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-8">
             <aside className="w-64 hidden md:block flex-shrink-0">
               <nav className="space-y-1 sticky top-24">
@@ -46,7 +44,6 @@ export function Layout({
 
     // Standard User Layout
     return <div className="min-h-screen bg-slate-50 flex flex-col">
-        <Navbar />
         <main className="flex-grow pb-24">{children}</main>
         <footer className="bg-white border-t border-slate-200 py-8 mb-20">
           <div className="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">

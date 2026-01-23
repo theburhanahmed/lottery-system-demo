@@ -6,7 +6,6 @@ import { lotteryService } from '../services/lottery.service';
 import { Lottery } from '../types';
 import { LotteryCard } from '../components/lottery/LotteryCard';
 import { AdUnit } from '../components/AdUnit';
-import { Navbar } from '../components/layout/Navbar';
 import { MainAppNavbar } from '../components/layout/MainAppNavbar';
 
 export function LandingPage() {
@@ -30,7 +29,6 @@ export function LandingPage() {
   const displayLotteries = lotteries.slice(0, 6);
 
   return <div className="bg-white">
-      <Navbar />
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-brand-slate-950 via-brand-slate-900 to-brand-slate-800">
         <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
