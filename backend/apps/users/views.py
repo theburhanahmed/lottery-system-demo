@@ -33,8 +33,8 @@ from apps.users.permissions import IsSameUserOrAdmin
 
 
 class RegisterThrottle(SafeAnonRateThrottle):
-    """Custom throttle for registration: 3 requests per minute"""
-    rate = '3/min'
+    """Custom throttle for registration: 100 requests per minute"""
+    rate = '100/min'
 
 
 def get_client_ip(request):
@@ -82,8 +82,8 @@ def register_view(request):
 
 
 class LoginThrottle(SafeAnonRateThrottle):
-    """Custom throttle for login: 5 requests per minute"""
-    rate = '5/min'
+    """Custom throttle for login: 100 requests per minute"""
+    rate = '100/min'
 
 
 @api_view(['POST'])
