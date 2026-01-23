@@ -21,6 +21,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { WithdrawalApprovalPage } from './pages/admin/WithdrawalApprovalPage';
 import { DrawExecutionPage } from './pages/admin/DrawExecutionPage';
 import { DrawResultsPage } from './pages/DrawResultsPage';
+import { AnalyticsTracker } from './components/AnalyticsTracker';
 
 // Protected Route Wrapper
 function ProtectedRoute({
@@ -55,6 +56,7 @@ export function App() {
         v7_relativeSplatPath: true,
       }}
     >
+      <AnalyticsTracker />
       <AuthProvider>
         <WalletProvider>
           <LotteryProvider>
