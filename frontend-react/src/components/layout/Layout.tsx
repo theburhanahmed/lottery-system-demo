@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navbar } from './Navbar';
+import { MainAppNavbar } from './MainAppNavbar';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, PlusCircle, Settings, Wallet, ArrowDownToLine, Zap } from 'lucide-react';
@@ -39,13 +40,14 @@ export function Layout({
             </aside>
             <main className="flex-1 min-w-0">{children}</main>
           </div>
+          <MainAppNavbar />
         </div>;
     }
 
     // Standard User Layout
     return <div className="min-h-screen bg-slate-50 flex flex-col">
         <Navbar />
-        <main className="flex-grow">{children}</main>
+        <main className="flex-grow pb-24">{children}</main>
         <footer className="bg-white border-t border-slate-200 py-8 mb-20">
           <div className="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
             <p>
@@ -56,6 +58,7 @@ export function Layout({
             </p>
           </div>
         </footer>
+        <MainAppNavbar />
       </div>;
 
 }

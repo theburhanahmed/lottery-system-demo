@@ -7,6 +7,7 @@ import { Lottery } from '../types';
 import { LotteryCard } from '../components/lottery/LotteryCard';
 import { AdUnit } from '../components/AdUnit';
 import { Navbar } from '../components/layout/Navbar';
+import { MainAppNavbar } from '../components/layout/MainAppNavbar';
 
 export function LandingPage() {
   const [lotteries, setLotteries] = useState<Lottery[]>([]);
@@ -133,5 +134,6 @@ export function LandingPage() {
           </Link>
         </div>
       </div>
+      <MainAppNavbar />
     </div>;
 }

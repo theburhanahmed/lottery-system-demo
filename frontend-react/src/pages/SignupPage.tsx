@@ -6,6 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/Card';
 import { PasswordStrength, validatePassword } from '../components/auth/PasswordStrength';
 import { AlertCircle } from 'lucide-react';
+import { MainAppNavbar } from '../components/layout/MainAppNavbar';
 
 export function SignupPage() {
   const [formData, setFormData] = useState({
@@ -81,8 +82,10 @@ export function SignupPage() {
               Sign in
             </Link>
           </p>
-        </CardFooter>
-      </Card>
-    </div>;
+          </CardFooter>
+        </Card>
+        <MainAppNavbar />
+      </div>;
 }
+
 

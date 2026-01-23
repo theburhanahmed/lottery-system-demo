@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/Card';
+import { MainAppNavbar } from '../components/layout/MainAppNavbar';
 
 export function LoginPage() {
   const [username, setUsername] = useState('');
@@ -56,8 +57,10 @@ export function LoginPage() {
               Sign up
             </Link>
           </p>
-        </CardFooter>
-      </Card>
-    </div>;
+          </CardFooter>
+        </Card>
+        <MainAppNavbar />
+      </div>;
 }
+
 
