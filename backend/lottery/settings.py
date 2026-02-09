@@ -30,7 +30,11 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 DEBUG = os.environ.get('DEBUG', True)
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+_allowed = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Add Railway domains when DATABASE_URL is set (PaaS deployment)
+if os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_PRIVATE_URL'):
+    _allowed.extend(['.railway.app', '.up.railway.app'])
+ALLOWED_HOSTS = [h.strip() for h in _allowed if h.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -90,31 +94,42 @@ TEMPLATES = [
 WSGI_APPLICATION = 'lottery.wsgi.application'
 
 # Database Configuration
-DB_ENGINE = os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3')
-DB_NAME = os.environ.get('DB_NAME', BASE_DIR / 'db.sqlite3')
-DB_USER = os.environ.get('DB_USER', '')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
-DB_HOST = os.environ.get('DB_HOST', '')
-DB_PORT = os.environ.get('DB_PORT', '')
+# Railway and many PaaS providers use DATABASE_URL (postgres://...)
+DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_PRIVATE_URL')
 
-if DB_ENGINE == 'django.db.backends.postgresql':
-    DATABASES = {
-        'default': {
-            'ENGINE': DB_ENGINE,
-            'NAME': DB_NAME,
-            'USER': DB_USER,
-            'PASSWORD': DB_PASSWORD,
-            'HOST': DB_HOST,
-            'PORT': DB_PORT,
-        }
-    }
+if DATABASE_URL:
+    import django_environ
+    # Railway/Heroku use postgres:// but psycopg2 requires postgresql://
+    if DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = 'postgresql://' + DATABASE_URL[9:]
+    env = django_environ.Env()
+    DATABASES = {'default': env.db_url_config(DATABASE_URL)}
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': DB_ENGINE,
-            'NAME': DB_NAME,
+    DB_ENGINE = os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3')
+    DB_NAME = os.environ.get('DB_NAME', str(BASE_DIR / 'db.sqlite3'))
+    DB_USER = os.environ.get('DB_USER', '')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
+    DB_HOST = os.environ.get('DB_HOST', '')
+    DB_PORT = os.environ.get('DB_PORT', '')
+
+    if DB_ENGINE == 'django.db.backends.postgresql':
+        DATABASES = {
+            'default': {
+                'ENGINE': DB_ENGINE,
+                'NAME': DB_NAME,
+                'USER': DB_USER,
+                'PASSWORD': DB_PASSWORD,
+                'HOST': DB_HOST,
+                'PORT': DB_PORT,
+            }
         }
-    }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': DB_ENGINE,
+                'NAME': DB_NAME,
+            }
+        }
 
 AUTH_PASSWORD_VALIDATORS = [
     {

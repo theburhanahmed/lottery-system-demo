@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacks]
+provider = "node"
+
+[deploy]
+# Build: npm run build produces dist/
+# Serve static files - Railway sets PORT
+startCommand = "npx serve -s dist -l $PORT"

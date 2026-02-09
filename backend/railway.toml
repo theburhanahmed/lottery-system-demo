@@ -1,0 +1,10 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "python manage.py migrate --noinput && gunicorn --bind 0.0.0.0:$PORT --workers 3 --timeout 120 lottery.wsgi:application"
+healthcheckPath = "/api/health/"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
