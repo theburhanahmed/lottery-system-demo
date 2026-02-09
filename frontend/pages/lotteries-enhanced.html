@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎰 Browse Lotteries - 49FlashMoney</title>
+  <link rel="stylesheet" href="../css/modern-styles.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/advanced-effects.css">
+  <link rel="stylesheet" href="../css/premium-effects.css">
+  <link rel="stylesheet" href="../css/lottery-cards.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    body {
+      min-height: 100vh;
+      padding-bottom: 3rem;
+    }
+    
+    .page-header {
+      text-align: center;
+      padding: 3rem 0 2rem;
+      position: relative;
+    }
+    
+    .page-header h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .filters-section {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid var(--border-color);
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .filter-group label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .filter-select {
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      color: var(--text-primary);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-select:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--neon-cyan);
+    }
+    
+    .lottery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .enhanced-lottery-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: 1.5rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .enhanced-lottery-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, 
+        rgba(102, 126, 234, 0.1) 0%, 
+        rgba(118, 75, 162, 0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .enhanced-lottery-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(102, 126, 234, 0.3);
+      border-color: var(--neon-purple);
+    }
+    
+    .enhanced-lottery-card:hover::before {
+      opacity: 1;
+    }
+    
+    .lottery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .lottery-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .lottery-status {
+      position: absolute;
+      top: -1.5rem;
+      right: -1.5rem;
+    }
+    
+    .lottery-icon {
+      font-size: 3rem;
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+    
+    .prize-section {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: rgba(0, 255, 128, 0.05);
+      border-radius: var(--border-radius-md);
+      border: 1px solid rgba(0, 255, 128, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .prize-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .prize-amount {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--neon-green);
+      margin-top: 0.25rem;
+      text-shadow: 0 0 20px rgba(6, 255, 165, 0.5);
+    }
+    
+    .lottery-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .info-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .lottery-progress {
+      margin: 1rem 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .progress-bar-container {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+      border-radius: 10px;
+      transition: width 1s ease;
+      position: relative;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+    
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    .progress-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .countdown-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      background: rgba(255, 140, 0, 0.05);
+      border-radius: var(--border-radius-md);
+      border: 1px solid rgba(255, 140, 0, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .countdown-timer {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--neon-orange);
+      font-family: 'Courier New', monospace;
+    }
+    
+    .lottery-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .buy-btn {
+      flex: 1;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      border: none;
+      border-radius: var(--border-radius-md);
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .buy-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.5s, height 0.5s;
+    }
+    
+    .buy-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .buy-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(255, 0, 110, 0.5);
+    }
+    
+    .details-btn {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      color: var(--text-primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .details-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--neon-cyan);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-secondary);
+    }
+    
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+      .lottery-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .page-header h1 {
+        font-size: 2rem;
+      }
+      
+      .filters-section {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Morphing Blobs Background -->
+  <div id="morphing-blobs"></div>
+
+  <!-- Navigation -->
+  <nav id="mainNav">
+    <div class="container">
+      <a href="../index.html" class="logo">
+        🎰 49FlashMoney
+      </a>
+      <button id="hamburger" aria-label="Menu">☰</button>
+      <ul class="nav-links" id="navbarMenu">
+        <li><a href="../index.html" class="nav-link">Home</a></li>
+        <li><a href="#" class="nav-link active">Lotteries</a></li>
+        <li><a href="../showcase-premium.html" class="nav-link" target="_blank">✨ Effects</a></li>
+        <li id="adminMenu" style="display: none;"><a href="./admin-dashboard.html" class="nav-link">Admin</a></li>
+      </ul>
+      <div id="navAuth" style="display: flex; gap: 10px; align-items: center;">
+        <a href="./login.html" class="btn btn--outline">Login</a>
+        <a href="./register.html" class="btn btn--primary">Register</a>
+      </div>
+      <div id="navUser" style="display: none; gap: 15px; align-items: center;">
+        <div class="user-wallet">
+          <span style="font-size: 1.2rem;">💰</span>
+          <strong id="walletDisplay" style="color: var(--neon-green);">$0.00</strong>
+        </div>
+        <span id="userName" style="color: var(--text-secondary);"></span>
+        <a href="./dashboard.html" class="btn btn--outline">Dashboard</a>
+        <button id="logoutBtn" class="btn btn--secondary">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Page Content -->
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="holographic">Browse Lotteries 🎰</h1>
+      <p style="color: var(--text-secondary); font-size: 1.1rem;">
+        Find your luck and win big prizes today!
+      </p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section shine-overlay">
+      <div class="filter-group">
+        <label>Status</label>
+        <select id="statusFilter" class="filter-select">
+          <option value="">All Status</option>
+          <option value="ACTIVE">🟢 Active</option>
+          <option value="DRAWN">🔵 Drawn</option>
+          <option value="COMPLETED">✅ Completed</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Sort By</label>
+        <select id="sortFilter" class="filter-select">
+          <option value="prize_desc">💰 Prize: High to Low</option>
+          <option value="prize_asc">💵 Prize: Low to High</option>
+          <option value="end_date">⏰ Ending Soon</option>
+          <option value="popularity">🔥 Most Popular</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Price Range</label>
+        <select id="priceFilter" class="filter-select">
+          <option value="">All Prices</option>
+          <option value="0-10">$0 - $10</option>
+          <option value="10-50">$10 - $50</option>
+          <option value="50-100">$50 - $100</option>
+          <option value="100+">$100+</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Lottery Grid -->
+    <div id="lotteriesGrid" class="lottery-grid">
+      <!-- Loading skeleton -->
+      <div class="skeleton" style="height: 400px; border-radius: var(--border-radius-lg);"></div>
+      <div class="skeleton" style="height: 400px; border-radius: var(--border-radius-lg);"></div>
+      <div class="skeleton" style="height: 400px; border-radius: var(--border-radius-lg);"></div>
+    </div>
+  </div>
+
+  <!-- Ticket Purchase Modal -->
+  <div id="ticketPurchaseModal" class="modal">
+    <div class="modal__content neon-border-animated">
+      <span class="modal__close" onclick="closeModal()">&times;</span>
+      <div class="modal__header">
+        <h2 class="gradient-text">🎫 Buy Lottery Tickets</h2>
+      </div>
+      <div id="modalContent" style="padding: 1.5rem;">
+        <!-- Will be populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/premium-effects.js"></script>
+  <script src="../js/interactive-effects.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/utils.js"></script>
+  
+  <script>
+    // Initialize premium effects
+    new window.PremiumEffects.MorphingBlobs();
+    new window.PremiumEffects.TiltEffect('.enhanced-lottery-card', 8);
+    
+    let lotteriesData = [];
+    
+    // Load lotteries
+    async function loadLotteries() {
+      try {
+        const response = await fetch('http://localhost:8000/api/lotteries/', {
+          headers: {
+            'Accept': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load lotteries');
+        }
+        
+        const data = await response.json();
+        lotteriesData = data.results || data;
+        renderLotteries(lotteriesData);
+      } catch (error) {
+        console.error('Error loading lotteries:', error);
+        document.getElementById('lotteriesGrid').innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-state-icon">😕</div>
+            <h3>Unable to load lotteries</h3>
+            <p>${error.message}</p>
+            <button class="btn btn--primary" onclick="loadLotteries()" style="margin-top: 1rem;">
+              Try Again
+            </button>
+          </div>
+        `;
+      }
+    }
+    
+    // Render lotteries
+    function renderLotteries(lotteries) {
+      const grid = document.getElementById('lotteriesGrid');
+      
+      if (!lotteries || lotteries.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-state-icon">🎰</div>
+            <h3>No lotteries found</h3>
+            <p>Check back soon for new opportunities to win!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      grid.innerHTML = lotteries.map(lottery => createLotteryCard(lottery)).join('');
+      
+      // Add event listeners
+      document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const lotteryId = e.target.dataset.lotteryId;
+          openPurchaseModal(lotteryId);
+        });
+      });
+    }
+    
+    // Create lottery card
+    function createLotteryCard(lottery) {
+      const statusBadge = getStatusBadge(lottery.status);
+      const ticketsSold = lottery.tickets_sold || 0;
+      const totalTickets = lottery.total_tickets;
+      const progress = (ticketsSold / totalTickets) * 100;
+      const endDate = new Date(lottery.draw_date);
+      const now = new Date();
+      const timeRemaining = endDate - now;
+      const daysRemaining = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+      const hoursRemaining = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      
+      return `
+        <div class="enhanced-lottery-card distortion-card">
+          <div class="lottery-header">
+            <div>
+              <div class="lottery-title">${lottery.name}</div>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                ${lottery.description || 'No description'}
+              </p>
+            </div>
+            <div class="lottery-icon">${getLotteryIcon(lottery)}</div>
+          </div>
+          
+          <div class="lottery-status">
+            ${statusBadge}
+          </div>
+          
+          <div class="prize-section">
+            <div class="prize-label">🏆 Grand Prize</div>
+            <div class="prize-amount">$${parseFloat(lottery.prize_amount).toLocaleString()}</div>
+          </div>
+          
+          <div class="lottery-info">
+            <div class="info-item">
+              <div class="info-label">Ticket Price</div>
+              <div class="info-value" style="color: var(--neon-cyan);">
+                $${parseFloat(lottery.ticket_price).toFixed(2)}
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Total Tickets</div>
+              <div class="info-value">${totalTickets.toLocaleString()}</div>
+            </div>
+          </div>
+          
+          <div class="lottery-progress">
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width: ${progress}%"></div>
+            </div>
+            <div class="progress-text">
+              <span>${ticketsSold.toLocaleString()} sold</span>
+              <span>${(totalTickets - ticketsSold).toLocaleString()} left</span>
+            </div>
+          </div>
+          
+          ${lottery.status === 'ACTIVE' ? `
+            <div class="countdown-section">
+              <span>⏰</span>
+              <div class="countdown-timer">
+                ${daysRemaining}d ${hoursRemaining}h remaining
+              </div>
+            </div>
+          ` : ''}
+          
+          <div class="lottery-actions">
+            ${lottery.status === 'ACTIVE' ? `
+              <button class="buy-btn" data-lottery-id="${lottery.id}">
+                <span style="position: relative; z-index: 1;">Buy Tickets 🎫</span>
+              </button>
+            ` : `
+              <button class="buy-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                <span style="position: relative; z-index: 1;">Not Available</span>
+              </button>
+            `}
+            <button class="details-btn" onclick="viewDetails(${lottery.id})">
+              Details
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Get status badge
+    function getStatusBadge(status) {
+      const badges = {
+        'ACTIVE': '<div class="floating-badge" style="background: linear-gradient(135deg, #06ffa5, #00f2fe);">LIVE 🟢</div>',
+        'DRAWN': '<div class="floating-badge" style="background: linear-gradient(135deg, #667eea, #764ba2);">DRAWN 🔵</div>',
+        'COMPLETED': '<div class="floating-badge" style="background: linear-gradient(135deg, #f093fb, #f5576c);">ENDED ✅</div>'
+      };
+      return badges[status] || '';
+    }
+    
+    // Get lottery icon
+    function getLotteryIcon(lottery) {
+      const icons = ['🎰', '🎲', '🎯', '💎', '🎁', '💰', '🏆', '⭐'];
+      return icons[lottery.id % icons.length];
+    }
+    
+    // Open purchase modal
+    function openPurchaseModal(lotteryId) {
+      const lottery = lotteriesData.find(l => l.id == lotteryId);
+      if (!lottery) return;
+      
+      const modal = document.getElementById('ticketPurchaseModal');
+      const content = document.getElementById('modalContent');
+      
+      content.innerHTML = `
+        <div style="margin-bottom: 1.5rem;">
+          <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">${lottery.name}</h3>
+          <p style="color: var(--text-secondary);">Prize: <span style="color: var(--neon-green); font-weight: 700;">$${parseFloat(lottery.prize_amount).toLocaleString()}</span></p>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">
+            Number of Tickets
+          </label>
+          <input 
+            type="number" 
+            id="ticketQuantity" 
+            min="1" 
+            max="10" 
+            value="1" 
+            style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); color: var(--text-primary); font-size: 1rem;"
+            onchange="updateTotal(${lottery.ticket_price})"
+          />
+        </div>
+        
+        <div style="padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: var(--border-radius-md); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: var(--text-secondary);">Total Cost:</span>
+            <span id="totalCost" class="value pulse" style="color: var(--neon-cyan); font-size: 1.5rem; font-weight: 700;">
+              $${parseFloat(lottery.ticket_price).toFixed(2)}
+            </span>
+          </div>
+        </div>
+        
+        <button class="btn btn--gold shine-effect" style="width: 100%; padding: 1rem;" onclick="purchaseTickets(${lottery.id})">
+          Complete Purchase 🎫
+        </button>
+      `;
+      
+      modal.style.display = 'flex';
+    }
+    
+    // Update total
+    function updateTotal(ticketPrice) {
+      const quantity = document.getElementById('ticketQuantity').value;
+      const total = (quantity * ticketPrice).toFixed(2);
+      document.getElementById('totalCost').textContent = `$${total}`;
+    }
+    
+    // Purchase tickets
+    async function purchaseTickets(lotteryId) {
+      const quantity = document.getElementById('ticketQuantity').value;
+      
+      // Check authentication
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please login to purchase tickets');
+        window.location.href = './login.html';
+        return;
+      }
+      
+      // Launch confetti on purchase
+      window.confetti.launch(window.innerWidth / 2, window.innerHeight / 2, 200);
+      
+      alert(`Purchase initiated for ${quantity} ticket(s)!`);
+      closeModal();
+    }
+    
+    // Close modal
+    function closeModal() {
+      document.getElementById('ticketPurchaseModal').style.display = 'none';
+    }
+    
+    // View details
+    function viewDetails(lotteryId) {
+      alert(`Viewing details for lottery ${lotteryId}`);
+    }
+    
+    // Filter handlers
+    document.getElementById('statusFilter').addEventListener('change', (e) => {
+      const status = e.target.value;
+      const filtered = status ? lotteriesData.filter(l => l.status === status) : lotteriesData;
+      renderLotteries(filtered);
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadLotteries();
+      
+      // Check auth state
+      const token = localStorage.getItem('token');
+      if (token) {
+        document.getElementById('navAuth').style.display = 'none';
+        document.getElementById('navUser').style.display = 'flex';
+        document.getElementById('userName').textContent = localStorage.getItem('username') || 'User';
+      }
+    });
+  </script>
+</body>
+</html>
