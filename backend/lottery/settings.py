@@ -34,6 +34,9 @@ _allowed = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 # Add Railway domains when DATABASE_URL is set (PaaS deployment)
 if os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_PRIVATE_URL'):
     _allowed.extend(['.railway.app', '.up.railway.app'])
+# Add Render.com domain when running on Render
+if os.environ.get('RENDER'):
+    _allowed.extend(['.onrender.com'])
 ALLOWED_HOSTS = [h.strip() for h in _allowed if h.strip()]
 
 INSTALLED_APPS = [
