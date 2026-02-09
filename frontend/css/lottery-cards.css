@@ -1,0 +1,622 @@
+/* ============================================
+   ENHANCED LOTTERY CARDS
+   Premium card designs with animations
+   ============================================ */
+
+/* ============================================
+   LOTTERY CARD STYLES
+   ============================================ */
+
+.lottery-card-premium {
+  position: relative;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+.lottery-card-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.lottery-card-premium:hover::before {
+  opacity: 0.1;
+}
+
+.lottery-card-premium:hover {
+  transform: translateY(-10px) scale(1.02);
+  border-color: var(--neon-cyan);
+  box-shadow: 
+    0 20px 60px rgba(0, 245, 255, 0.3),
+    0 0 40px rgba(102, 126, 234, 0.2);
+}
+
+/* Card Header with Prize Badge */
+.lottery-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.lottery-prize-badge {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  color: var(--bg-dark);
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 900;
+  font-size: 1.5rem;
+  font-family: var(--font-display);
+  box-shadow: 0 10px 30px rgba(247, 151, 30, 0.5);
+  animation: prizePulse 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes prizePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 10px 30px rgba(247, 151, 30, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(247, 151, 30, 0.7);
+  }
+}
+
+.lottery-prize-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: badgeShine 2s linear infinite;
+}
+
+@keyframes badgeShine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.lottery-status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lottery-status-badge.active {
+  background: linear-gradient(135deg, #06ffa5 0%, #00d4ff 100%);
+  color: var(--bg-dark);
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+.lottery-status-badge.upcoming {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.lottery-status-badge.completed {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Card Body */
+.lottery-card-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #fff 0%, var(--neon-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.lottery-card-description {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+/* Stats Row */
+.lottery-stats-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius-md);
+}
+
+.lottery-stat-item {
+  text-align: center;
+}
+
+.lottery-stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lottery-stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  font-family: var(--font-display);
+}
+
+/* Progress Bar */
+.lottery-progress-container {
+  margin: 1.5rem 0;
+}
+
+.lottery-progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.lottery-progress-bar {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  overflow: hidden;
+  position: relative;
+}
+
+.lottery-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #00f5ff 100%);
+  border-radius: 50px;
+  transition: width 1s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.lottery-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progressShine 2s linear infinite;
+}
+
+@keyframes progressShine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+/* Countdown Timer in Card */
+.lottery-countdown {
+  background: rgba(255, 0, 110, 0.1);
+  border: 1px solid rgba(255, 0, 110, 0.3);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.lottery-countdown-label {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--neon-pink);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.lottery-countdown-time {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.lottery-countdown-unit {
+  text-align: center;
+}
+
+.lottery-countdown-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+  font-family: var(--font-display);
+  color: var(--neon-pink);
+  line-height: 1;
+  animation: countdownBlink 1s ease-in-out infinite;
+}
+
+@keyframes countdownBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.lottery-countdown-text {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+/* Card Footer */
+.lottery-card-footer {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.lottery-card-footer .btn {
+  flex: 1;
+  min-width: 120px;
+  justify-content: center;
+}
+
+/* Special Effect Cards */
+.lottery-card-jackpot {
+  border: 3px solid transparent;
+  background: 
+    linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+    linear-gradient(135deg, #f7971e 0%, #ffd200 50%, #f7971e 100%) border-box;
+  animation: jackpotBorderGlow 3s ease-in-out infinite;
+}
+
+@keyframes jackpotBorderGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(247, 151, 30, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(255, 210, 0, 0.8));
+  }
+}
+
+.lottery-card-hot {
+  position: relative;
+}
+
+.lottery-card-hot::after {
+  content: '🔥 HOT';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #ff006e 0%, #fb5607 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  animation: hotBadgePulse 1s ease-in-out infinite;
+}
+
+@keyframes hotBadgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Ticket Display */
+.lottery-ticket {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+}
+
+.lottery-ticket::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>');
+  opacity: 0.3;
+}
+
+.lottery-ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.lottery-ticket-id {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.lottery-ticket-status {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.lottery-ticket-numbers {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.lottery-ticket-number {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: white;
+  color: var(--bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 900;
+  font-family: var(--font-display);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  animation: numberBounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.lottery-ticket-number:nth-child(1) { animation-delay: 0.1s; }
+.lottery-ticket-number:nth-child(2) { animation-delay: 0.2s; }
+.lottery-ticket-number:nth-child(3) { animation-delay: 0.3s; }
+.lottery-ticket-number:nth-child(4) { animation-delay: 0.4s; }
+.lottery-ticket-number:nth-child(5) { animation-delay: 0.5s; }
+.lottery-ticket-number:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes numberBounceIn {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2) rotate(20deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.lottery-ticket-info {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.lottery-ticket-info-item {
+  text-align: center;
+}
+
+.lottery-ticket-info-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.25rem;
+}
+
+.lottery-ticket-info-value {
+  font-weight: 700;
+  color: white;
+}
+
+/* Winner Announcement Card */
+.winner-card {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: winnerReveal 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes winnerReveal {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.winner-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: winnerShine 2s linear infinite;
+}
+
+@keyframes winnerShine {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.winner-card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.winner-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: winnerIconBounce 1s ease-in-out infinite;
+}
+
+@keyframes winnerIconBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.1);
+  }
+}
+
+.winner-amount {
+  font-size: 3rem;
+  font-weight: 900;
+  font-family: var(--font-display);
+  color: var(--bg-dark);
+  margin: 1rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Lottery Grid Layout */
+.lottery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .lottery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .lottery-card-premium {
+    padding: 1.5rem;
+  }
+  
+  .lottery-prize-badge {
+    font-size: 1.2rem;
+    padding: 0.6rem 1.2rem;
+  }
+  
+  .lottery-stats-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .lottery-ticket-numbers {
+    gap: 0.5rem;
+  }
+  
+  .lottery-ticket-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+  
+  .winner-amount {
+    font-size: 2rem;
+  }
+}
+
+/* Animation Classes for JavaScript */
+.animate-in {
+  animation: slideInUp 0.6s ease-out both;
+}
+
+.animate-bounce {
+  animation: cardFloat 0.6s ease-in-out;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+/* Loading State for Cards */
+.lottery-card-skeleton {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
