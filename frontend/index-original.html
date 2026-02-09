@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lottery System</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+  <style>
+    /* Ensure the home page is visible initially, then JS will manage visibility */
+    .page {
+      display: none;
+    }
+    
+    /* Show home page by default */
+    #page-home {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <a href="./index.html" class="logo">🎰 Lottery System</a>
+      <button id="hamburger">☰</button>
+      <ul class="nav-links" id="navbarMenu">
+        <li><a href="./index.html" class="nav-link active" data-page="home">Home</a></li>
+        <li><a href="./pages/lotteries.html" class="nav-link" data-page="lotteries">Lotteries</a></li>
+        <li id="adminMenu" style="display: none;"><a href="./pages/admin-dashboard.html" class="nav-link" data-page="admin-dashboard">Admin</a></li>
+      </ul>
+      <div id="navAuth" style="display: flex; gap: 10px;">
+        <a href="./pages/login.html" class="btn btn--primary" style="padding: 8px 16px; font-size: 14px;">Login</a>
+        <a href="./pages/register.html" class="btn btn--secondary" style="padding: 8px 16px; font-size: 14px;">Register</a>
+      </div>
+      <div id="navUser" style="display: none; gap: 15px; align-items: center;">
+        <div class="user-section">
+          <span>💰 <strong id="walletDisplay">$0.00</strong></span>
+        </div>
+        <span id="userName"></span>
+        <a href="./pages/dashboard.html" class="btn btn--secondary" style="padding: 8px 12px; font-size: 12px;">Profile</a>
+        <button id="logoutBtn" class="btn btn--secondary" style="padding: 8px 12px; font-size: 12px;">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Home Page -->
+  <div id="page-home" class="page active">
+    <div class="hero">
+      <h1>Welcome to Lottery System</h1>
+      <p>Buy tickets, try your luck, and win big prizes!</p>
+      <div id="heroAuth" style="display: flex; gap: 10px; justify-content: center;">
+        <a href="./pages/register.html" class="btn btn--primary">Get Started</a>
+        <a href="./pages/lotteries.html" class="btn btn--secondary">Browse Lotteries</a>
+      </div>
+      <div id="heroUser" style="display: none; gap: 10px; justify-content: center;">
+        <a href="./pages/tickets.html" class="btn btn--primary">My Tickets</a>
+        <a href="./pages/dashboard.html" class="btn btn--secondary">Dashboard</a>
+      </div>
+    </div>
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Active Lotteries</h3>
+          <div class="value" id="activeLotteries">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Players</h3>
+          <div class="value" id="totalPlayers">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Tickets Sold</h3>
+          <div class="value" id="totalTickets">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Prize Pool</h3>
+          <div class="value" id="totalPrizes">$0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Page -->
+  <div id="page-login" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <div class="card" style="max-width: 400px; margin: 0 auto;">
+        <div class="card__header">Login</div>
+        <div class="card__body">
+          <form id="loginForm">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="loginUsername" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+          </form>
+          <p style="text-align: center; margin-top: 20px;">
+            <a href="./pages/login.html">Forgot Password?</a>
+            Don't have an account? <a href="./pages/register.html">Register here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Page -->
+  <div id="page-register" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <div class="card" style="max-width: 400px; margin: 0 auto;">
+        <div class="card__header">Register</div>
+        <div class="card__body">
+          <form id="registerForm">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="registerUsername" required>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="registerEmail" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="registerPassword" required>
+            </div>
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input type="password" id="registerPasswordConfirm" required>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full-width">Register</button>
+          </form>
+          <p style="text-align: center; margin-top: 20px;">
+            Already have an account? <a href="./pages/login.html">Login here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lotteries Page -->
+  <div id="page-lotteries" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <div style="margin-bottom: 30px;">
+        <h2>All Lotteries</h2>
+        <select id="statusFilter" style="margin-top: 10px; padding: 8px; border-radius: 4px;">
+          <option value="">All Status</option>
+          <option value="ACTIVE">Active</option>
+          <option value="DRAWN">Drawn</option>
+          <option value="COMPLETED">Completed</option>
+        </select>
+      </div>
+      <div id="lotteriesGrid" class="grid"></div>
+    </div>
+  </div>
+
+  <!-- Lottery Detail Page -->
+  <div id="page-lottery-detail" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <div id="lotteryDetail"></div>
+    </div>
+  </div>
+
+  <!-- My Tickets Page -->
+  <div id="page-tickets" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <h2 style="margin-bottom: 30px;">My Tickets</h2>
+      <div id="ticketsGrid"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div id="page-dashboard" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <h2 style="margin-bottom: 20px;">Dashboard</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Wallet Balance</h3>
+          <div class="value" id="dashboardBalance">$0.00</div>
+          <button class="btn btn--primary" id="addFundsBtn" style="margin-top: 15px; padding: 6px 12px; font-size: 12px;">+ Add Funds</button>
+        </div>
+        <div class="stat-card">
+          <h3>Tickets Bought</h3>
+          <div class="value" id="statTickets">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Spent</h3>
+          <div class="value" id="statSpent">$0.00</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Won</h3>
+          <div class="value" id="statWon">$0.00</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 30px;">
+        <div class="card__header">Payment Methods</div>
+        <div class="card__body">
+          <div id="paymentMethodsList"></div>
+          <button class="btn btn--primary" id="addPaymentBtn" style="margin-top: 15px;">+ Add Payment Method</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <div class="card__header">Recent Activity</div>
+        <div class="card__body">
+          <p style="color: #999;">View your recent transactions</p>
+          <a href="./pages/transactions.html" class="btn btn--primary">View Transactions</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions Page -->
+  <div id="page-transactions" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <h2 style="margin-bottom: 20px;">Transactions</h2>
+      <select id="transactionTypeFilter" style="margin-bottom: 20px; padding: 8px; border-radius: 4px;">
+        <option value="">All Types</option>
+        <option value="DEPOSIT">Deposit</option>
+        <option value="WITHDRAWAL">Withdrawal</option>
+        <option value="TICKET_PURCHASE">Ticket Purchase</option>
+        <option value="PRIZE_CLAIM">Prize Claim</option>
+      </select>
+      <div id="transactionsList"></div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard Page -->
+  <div id="page-admin-dashboard" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <h2 style="margin-bottom: 20px;">Admin Dashboard</h2>
+      <a href="./pages/admin-create.html" class="btn btn--primary">+ Create New Lottery</a>
+      <div style="margin-top: 20px;" id="adminContent"></div>
+    </div>
+  </div>
+
+  <!-- Admin Create Lottery Page -->
+  <div id="page-admin-create-lottery" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <div class="card__header">Create New Lottery</div>
+        <div class="card__body">
+          <form id="createLotteryForm">
+            <div class="form-group">
+              <label>Lottery Name</label>
+              <input type="text" id="lotteryName" required>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="lotteryDescription" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Ticket Price ($)</label>
+              <input type="number" id="ticketPrice" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+              <label>Prize Amount ($)</label>
+              <input type="number" id="prizeAmount" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+              <label>Total Tickets</label>
+              <input type="number" id="totalTickets" min="1" required>
+            </div>
+            <div class="form-group">
+              <label>Draw Date</label>
+              <input type="datetime-local" id="drawDate" required>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full-width">Create Lottery</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Password Reset Request Page -->
+  <div id="page-password-reset-request" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <div class="card" style="max-width: 400px; margin: 0 auto;">
+        <div class="card__header">Reset Password</div>
+        <div class="card__body">
+          <p style="text-align: center; margin-bottom: 20px;">Enter your email to receive a password reset link</p>
+          <form id="passwordResetRequestForm">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="resetEmail" required>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full-width">Send Reset Link</button>
+          </form>
+          <p style="text-align: center; margin-top: 20px;">
+            <a href="./pages/login.html">Back to Login</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Password Reset Page -->
+  <div id="page-password-reset" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <div class="card" style="max-width: 400px; margin: 0 auto;">
+        <div class="card__header">Set New Password</div>
+        <div class="card__body">
+          <form id="passwordResetForm">
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" id="newPassword" required>
+            </div>
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" id="confirmNewPassword" required>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full-width">Reset Password</button>
+          </form>
+          <p style="text-align: center; margin-top: 20px;">
+            <a href="./pages/login.html">Back to Login</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Verification Page -->
+  <div id="page-email-verification" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <div class="card" style="max-width: 400px; margin: 0 auto; text-align: center;">
+        <div class="card__header">Email Verification</div>
+        <div class="card__body">
+          <div id="verificationContent">
+            <p>Verifying your email address...</p>
+            <div class="loading"></div>
+          </div>
+          <div id="verificationResult" style="display: none;">
+            <p id="verificationMessage"></p>
+            <a href="./pages/login.html" class="btn btn--primary" style="margin-top: 20px;">Go to Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Management Page -->
+  <div id="page-profile" class="page">
+    <div class="container" style="margin-top: 40px;">
+      <h2 style="margin-bottom: 20px;">Profile Settings</h2>
+      <div class="grid" style="grid-template-columns: 1fr; max-width: 600px; margin: 0 auto;">
+        <div class="card">
+          <div class="card__header">Personal Information</div>
+          <div class="card__body">
+            <form id="profileForm">
+              <div class="form-group">
+                <label>First Name</label>
+                <input type="text" id="profileFirstName">
+              </div>
+              <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" id="profileLastName">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="profileEmail" readonly>
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="profilePhone">
+              </div>
+              <button type="submit" class="btn btn--primary btn--full-width">Update Profile</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+          <div class="card__header">Change Password</div>
+          <div class="card__body">
+            <form id="changePasswordForm">
+              <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword" required>
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="changePassword" required>
+              </div>
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmChangePassword" required>
+              </div>
+              <button type="submit" class="btn btn--primary btn--full-width">Change Password</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="addFundsModal" class="modal">
+    <div class="modal__content">
+      <span class="modal__close" onclick="UI.closeModal('addFundsModal')">&times;</span>
+      <div class="modal__header">Add Funds</div>
+      <form id="addFundsForm">
+        <div class="form-group">
+          <label>Amount ($)</label>
+          <input type="number" id="fundsAmount" step="0.01" min="0.01" required>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full-width">Add Funds</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="addPaymentModal" class="modal">
+    <div class="modal__content">
+      <span class="modal__close" onclick="UI.closeModal('addPaymentModal')">&times;</span>
+      <div class="modal__header">Add Payment Method</div>
+      <form id="addPaymentForm">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="paymentName" required>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="paymentType" required>
+            <option>CREDIT_CARD</option>
+            <option>BANK_TRANSFER</option>
+            <option>PAYPAL</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Account Number</label>
+          <input type="text" id="accountNumber" required>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full-width">Add Method</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="ticketPurchaseModal" class="modal">
+    <div class="modal__content">
+      <span class="modal__close" onclick="UI.closeModal('ticketPurchaseModal')">&times;</span>
+      <div class="modal__header">🎫 Buy Lottery Ticket</div>
+      <form id="ticketPurchaseForm">
+        <div id="purchaseInfo"></div>
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" id="ticketQuantity" min="1" value="1" onchange="APP.updatePurchaseTotal()" required>
+        </div>
+        <div id="purchaseTotal"></div>
+        <button type="submit" class="btn btn--primary btn--full-width" style="margin-top: 20px;">Purchase Tickets</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./js/utils.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/payments.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
