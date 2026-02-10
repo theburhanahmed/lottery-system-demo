@@ -189,6 +189,11 @@ _extra = os.environ.get('CSRF_TRUSTED_ORIGINS', '').strip()
 if _extra:
     CSRF_TRUSTED_ORIGINS.extend(o.strip() for o in _extra.split(',') if o.strip())
 
+# When behind a proxy (e.g. Render), trust X-Forwarded-Proto so SSL redirect doesn't loop.
+# Without this, the app sees HTTP from the proxy and keeps redirecting to HTTPS.
+if _on_render:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() == 'true' if not DEBUG else False
 SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true' if not DEBUG else False
 CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() == 'true' if not DEBUG else False
