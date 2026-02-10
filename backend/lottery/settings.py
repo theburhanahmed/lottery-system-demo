@@ -32,7 +32,7 @@ DEBUG = os.environ.get('DEBUG', True)
 
 _allowed = os.environ.get(
     'ALLOWED_HOSTS',
-    'localhost,127.0.0.1,.onrender.com'
+    'localhost,127.0.0.1,lottery-system-demo.onrender.com,.onrender.com'
 ).split(',')
 # Add Railway domains when DATABASE_URL is set (PaaS deployment)
 if os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_PRIVATE_URL'):
@@ -294,51 +294,47 @@ CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 
 # Redis Configuration for Caching
-# Try to use Redis if available, otherwise fallback to local memory cache
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
+# Only use Redis when REDIS_URL is explicitly set (e.g. production with Redis add-on).
+# Otherwise use local memory cache to avoid connection refused errors and log spam.
+REDIS_URL = os.environ.get('REDIS_URL', '')
+_use_redis = bool(REDIS_URL and REDIS_URL.strip())
 
-try:
-    # Try to connect to Redis to see if it's available
-    import redis
+if _use_redis:
     try:
-        redis_client = redis.from_url(REDIS_URL, socket_connect_timeout=1)
-        redis_client.ping()
-        # Redis is available, use django-redis backend (more reliable)
-        CACHES = {
-            'default': {
-                'BACKEND': 'django_redis.cache.RedisCache',
-                'LOCATION': REDIS_URL,
-                'OPTIONS': {
-                    'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-                    'SOCKET_CONNECT_TIMEOUT': 1,
-                    'SOCKET_TIMEOUT': 1,
-                    'IGNORE_EXCEPTIONS': True,  # Ignore Redis errors and fallback gracefully
-                },
-                'KEY_PREFIX': 'lottery',
-                'TIMEOUT': 300,  # 5 minutes default timeout
+        import redis
+        try:
+            redis_client = redis.from_url(REDIS_URL, socket_connect_timeout=1)
+            redis_client.ping()
+            CACHES = {
+                'default': {
+                    'BACKEND': 'django_redis.cache.RedisCache',
+                    'LOCATION': REDIS_URL,
+                    'OPTIONS': {
+                        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                        'SOCKET_CONNECT_TIMEOUT': 1,
+                        'SOCKET_TIMEOUT': 1,
+                        'IGNORE_EXCEPTIONS': True,
+                    },
+                    'KEY_PREFIX': 'lottery',
+                    'TIMEOUT': 300,
+                }
             }
-        }
-    except (redis.ConnectionError, redis.TimeoutError, Exception) as e:
-        # Redis connection failed, use local memory cache as fallback
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.warning(f'Redis connection failed: {e}. Falling back to local memory cache.')
-        CACHES = {
-            'default': {
-                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-                'LOCATION': 'lottery-cache',
-                'KEY_PREFIX': 'lottery',
-                'TIMEOUT': 300,  # 5 minutes default timeout
-            }
-        }
-except ImportError:
-    # Redis package not installed, use local memory cache as fallback
+        except (redis.ConnectionError, redis.TimeoutError, Exception) as e:
+            import logging
+            logging.getLogger(__name__).warning(
+                'Redis connection failed: %s. Falling back to local memory cache.', e
+            )
+            _use_redis = False
+    except ImportError:
+        _use_redis = False
+
+if not _use_redis:
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'LOCATION': 'lottery-cache',
             'KEY_PREFIX': 'lottery',
-            'TIMEOUT': 300,  # 5 minutes default timeout
+            'TIMEOUT': 300,
         }
     }
 
