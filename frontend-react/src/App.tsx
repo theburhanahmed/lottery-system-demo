@@ -5,6 +5,7 @@ import { WalletProvider } from './contexts/WalletContext';
 import { LotteryProvider } from './contexts/LotteryContext';
 import { Layout } from './components/layout/Layout';
 import { AnalyticsTracker } from './components/AnalyticsTracker';
+import { Analytics } from '@vercel/analytics/react';
 
 // Lazy-loaded pages for code splitting
 const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
@@ -65,6 +66,7 @@ export function App() {
       }}
     >
       <AnalyticsTracker />
+      <Analytics />
       <AuthProvider>
         <WalletProvider>
           <LotteryProvider>
