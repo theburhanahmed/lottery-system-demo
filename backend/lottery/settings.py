@@ -111,6 +111,19 @@ WSGI_APPLICATION = 'lottery.wsgi.application'
 # Railway and many PaaS providers use DATABASE_URL (postgres://...)
 DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_PRIVATE_URL')
 
+def _resolve_host_to_ipv4(host, port=5432):
+    """Resolve hostname to IPv4 so connections work from environments (e.g. Render) where IPv6 is unreachable."""
+    if not host or host in ('localhost', '127.0.0.1'):
+        return host
+    import socket
+    try:
+        infos = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)
+        if infos:
+            return infos[0][4][0]
+    except (socket.gaierror, OSError):
+        pass
+    return host
+
 if DATABASE_URL:
     import django_environ
     # Railway/Heroku use postgres:// but psycopg2 requires postgresql://
@@ -118,6 +131,12 @@ if DATABASE_URL:
         DATABASE_URL = 'postgresql://' + DATABASE_URL[9:]
     env = django_environ.Env()
     DATABASES = {'default': env.db_url_config(DATABASE_URL)}
+    # Force IPv4 for remote DB (e.g. Supabase) to avoid "Network is unreachable" on IPv6 from Render
+    host = DATABASES['default'].get('HOST', '')
+    if host:
+        resolved = _resolve_host_to_ipv4(host, int(DATABASES['default'].get('PORT') or 5432))
+        if resolved != host:
+            DATABASES['default']['HOST'] = resolved
 else:
     DB_ENGINE = os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3')
     DB_NAME = os.environ.get('DB_NAME', str(BASE_DIR / 'db.sqlite3'))
