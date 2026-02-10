@@ -50,9 +50,10 @@ htmlcov/
 .tox/
 .hypothesis/
 
-# Environment files
+# Environment files (.env has secrets; .env.example is committed as template)
 .env
-.env.example
+.env.local
+.env.*.local
 
 # OS
 Thumbs.db

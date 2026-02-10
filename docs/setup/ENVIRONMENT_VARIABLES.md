@@ -2,6 +2,11 @@
 
 This document describes all environment variables used in the Lottery System.
 
+## Where values come from
+
+- **Development:** Values are read from `.env` in each app. Backend loads `backend/.env` via `python-dotenv` (in `manage.py` and `wsgi.py`). Frontend (Vite) reads `frontend-react/.env` and exposes `VITE_*` to the app. Copy from `.env.example` if you don’t have a `.env` yet.
+- **Production:** Do not rely on `.env`. Set variables (and secrets) in your host’s dashboard: **Render** for the backend (Environment tab), **Vercel** for the frontend (Project → Settings → Environment Variables). Use strong secrets and set `DEBUG=False` for the backend.
+
 ## Required Variables
 
 ### Database Configuration

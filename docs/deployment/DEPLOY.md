@@ -8,7 +8,7 @@ Follow this order so the frontend can point to the live backend URL.
 
 1. Go to [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint**.
 2. Connect your Git provider and select this repository.
-3. Click **Apply**. Render will create **db** (PostgreSQL) and **backend** (Django). Wait for both to finish.
+3. Click **Apply**. Render will create **db** (PostgreSQL) and **backend** (Django). The Blueprint defines all env var **keys** from **backend/.env.example** in [render.yaml](../../render.yaml); you fill **values** in the Dashboard.
 4. **Set DATABASE_URL on the backend** (avoids "id is empty" sync errors):
    - Open the **db** service → **Info** (or **Connect**) → copy **Internal Database URL**.
    - Open the **backend** service → **Environment** → **Add Environment Variable**:
@@ -30,14 +30,18 @@ Follow this order so the frontend can point to the live backend URL.
    - **Framework Preset:** Vite (auto-detected).
    - **Build Command:** `npm run build` (default).
    - **Output Directory:** `dist` (default).
-3. In **Environment Variables**, add:
+3. In **Environment Variables**, add the variables from **frontend-react/.env.example** (Vercel does not read .env from the repo; set them in the dashboard). Minimum for production:
 
    | Name | Value | Environment |
    |------|--------|-------------|
    | **VITE_API_BASE_URL** | `https://YOUR-BACKEND-URL.onrender.com/api` | Production, Preview |
+   | **VITE_WS_URL** | `wss://YOUR-BACKEND-URL.onrender.com/ws` (or leave default) | Production, Preview |
    | **VITE_STRIPE_PUBLIC_KEY** | Your Stripe publishable key | Production, Preview (optional) |
+   | **VITE_APP_ENV** | `production` | Production, Preview |
+   | **VITE_GA4_ID** | (optional) Google Analytics ID | Production, Preview |
+   | **VITE_ADSENSE_CLIENT** | (optional) AdSense client ID | Production, Preview |
 
-   Replace `YOUR-BACKEND-URL` with the backend URL from Step 1 (no trailing slash; add `/api` at the end).
+   Replace `YOUR-BACKEND-URL` with the backend host from Step 1 (e.g. `backend-xxxx.onrender.com`).
 4. Click **Deploy**. Wait for the build to finish.
 5. Copy your Vercel URL (e.g. `https://your-app.vercel.app`).
 
@@ -59,8 +63,8 @@ The backend currently allows all origins (`CORS_ALLOW_ALL_ORIGINS = True`), so y
 | Backend + DB | Render | `https://backend-xxxx.onrender.com` |
 | Frontend | Vercel | `https://your-app.vercel.app` |
 
-- **Backend env (Render):** `DATABASE_URL` (auto), `SECRET_KEY` (auto), `CORS_ALLOWED_ORIGINS` (you set), optional Stripe/S3.
-- **Frontend env (Vercel):** `VITE_API_BASE_URL` = backend URL + `/api`, optional `VITE_STRIPE_PUBLIC_KEY`.
+- **Backend env (Render):** All keys from **backend/.env.example** are in the Blueprint; set `DATABASE_URL`, `CORS_ALLOWED_ORIGINS`, and any secrets in the backend Environment tab. `SECRET_KEY` is auto-generated.
+- **Frontend env (Vercel):** Set variables from **frontend-react/.env.example** in Project → Settings → Environment Variables (Vercel does not read .env from the repo).
 
 If the frontend shows network errors when calling the API, check that `VITE_API_BASE_URL` is exactly `https://...onrender.com/api` (no trailing slash except `/api`).
 

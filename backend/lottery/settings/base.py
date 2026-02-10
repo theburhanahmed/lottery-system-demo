@@ -29,7 +29,7 @@ MAILGUN_DOMAIN = os.environ.get('MAILGUN_DOMAIN', '')
 USE_MAILGUN = os.environ.get('USE_MAILGUN', 'False').lower() == 'true'
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
-DEBUG = os.environ.get('DEBUG', True)
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 _on_render = os.environ.get('RENDER') or os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if _on_render:
@@ -179,6 +179,15 @@ SIMPLE_JWT = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+# Django 4.0+ origin checking for CSRF (e.g. /admin/login/ over HTTPS)
+CSRF_TRUSTED_ORIGINS = []
+_render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if _render_host:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{_render_host}')
+_extra = os.environ.get('CSRF_TRUSTED_ORIGINS', '').strip()
+if _extra:
+    CSRF_TRUSTED_ORIGINS.extend(o.strip() for o in _extra.split(',') if o.strip())
 
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() == 'true' if not DEBUG else False
 SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true' if not DEBUG else False

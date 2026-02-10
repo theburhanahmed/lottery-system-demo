@@ -2,6 +2,19 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
+
+# Load .env in dev (prod uses platform env/secrets: Render, etc.)
+def _load_dotenv():
+    try:
+        from dotenv import load_dotenv
+        env_path = Path(__file__).resolve().parent / '.env'
+        if env_path.exists():
+            load_dotenv(env_path)
+    except ImportError:
+        pass
+
+_load_dotenv()
 
 
 def main():
