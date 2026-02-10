@@ -47,6 +47,7 @@ else:
     ALLOWED_HOSTS = _allowed
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -84,6 +85,87 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'lottery.urls'
+
+# Django Jazzmin – admin UI theme (https://django-jazzmin.readthedocs.io/)
+JAZZMIN_SETTINGS = {
+    'site_title': 'Lottery Admin',
+    'site_header': 'Lottery System',
+    'site_brand': 'Lottery Admin',
+    'site_logo_classes': 'img-circle',
+    'welcome_sign': 'Welcome to the Lottery admin',
+    'copyright': 'Lottery System',
+    'search_model': 'users.User',
+    'user_avatar': None,
+    'topmenu_links': [
+        {'name': 'Home', 'url': 'admin:index'},
+        {'name': 'API Docs', 'url': '/api/docs/', 'new_window': True},
+    ],
+    'show_sidebar': True,
+    'navigation_expanded': True,
+    'hide_apps': [],
+    'hide_models': [],
+    'order_with_respect_to': ['auth', 'users', 'lotteries', 'transactions', 'payments', 'referrals', 'notifications', 'analytics'],
+    'icons': {
+        'auth': 'fas fa-users-cog',
+        'auth.user': 'fas fa-user',
+        'auth.Group': 'fas fa-users',
+        'users.User': 'fas fa-user',
+        'users.AuditLog': 'fas fa-clipboard-list',
+        'lotteries': 'fas fa-ticket-alt',
+        'lotteries.Lottery': 'fas fa-dice',
+        'lotteries.Ticket': 'fas fa-ticket-alt',
+        'lotteries.LotteryTemplate': 'fas fa-layer-group',
+        'transactions': 'fas fa-exchange-alt',
+        'transactions.Transaction': 'fas fa-money-bill-wave',
+        'payments': 'fas fa-credit-card',
+        'referrals': 'fas fa-user-friends',
+        'notifications': 'fas fa-bell',
+        'analytics': 'fas fa-chart-line',
+        'common': 'fas fa-cog',
+    },
+    'default_icon_parents': 'fas fa-chevron-circle-right',
+    'default_icon_children': 'fas fa-circle',
+    'related_modal_active': True,
+    'custom_css': None,
+    'custom_js': None,
+    'show_ui_builder': False,
+    'changeform_format': 'horizontal_tabs',
+    'changeform_format_overrides': {
+        'auth.user': 'collapsible',
+        'auth.group': 'collapsible',
+    },
+}
+JAZZMIN_UI_TWEAKS = {
+    'navbar_small_text': False,
+    'footer_small_text': False,
+    'body_small_text': False,
+    'brand_small_text': False,
+    'brand_colour': 'navbar-primary',
+    'accent': 'accent-primary',
+    'navbar': 'navbar-dark navbar-primary',
+    'no_navbar_border': False,
+    'navbar_fixed': True,
+    'layout_boxed': False,
+    'footer_fixed': False,
+    'sidebar_fixed': True,
+    'sidebar': 'sidebar-dark-primary',
+    'sidebar_nav_small_text': False,
+    'sidebar_disable_expand': False,
+    'sidebar_nav_child_indent': False,
+    'sidebar_nav_compact_style': False,
+    'sidebar_nav_legacy_style': False,
+    'sidebar_nav_flat_style': False,
+    'theme': 'flatly',
+    'dark_mode_theme': 'darkly',
+    'button_classes': {
+        'primary': 'btn-primary',
+        'secondary': 'btn-secondary',
+        'info': 'btn-info',
+        'warning': 'btn-warning',
+        'danger': 'btn-danger',
+        'success': 'btn-success',
+    },
+}
 
 TEMPLATES = [
     {

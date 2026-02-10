@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Group
 from apps.users.models import User, UserProfile, AuditLog
 
-
+# Use our User admin (custom user model)
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
@@ -22,6 +23,17 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ['created_at']
     search_fields = ['user__username', 'user__email']
     readonly_fields = ['created_at', 'updated_at']
+
+
+# Register Group so it appears under Users in Jazzmin; unregister default first
+admin.site.unregister(Group)
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    search_fields = ['name']
+    filter_horizontal = ['permissions']
 
 
 @admin.register(AuditLog)

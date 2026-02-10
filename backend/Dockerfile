@@ -50,6 +50,15 @@ WORKDIR /app
 # Copy project
 COPY --chown=lottery:lottery . /app/
 
+# Collect static files so WhiteNoise manifest exists (admin CSS/JS, etc.)
+# Requires no DB; use minimal env so production storage is used.
+ENV DJANGO_SETTINGS_MODULE=lottery.settings
+RUN set -e; \
+    export SECRET_KEY=build-time-static-collect; \
+    export DEBUG=False; \
+    cd /app && python manage.py collectstatic --noinput; \
+    chown -R lottery:lottery /app/staticfiles
+
 # Switch to non-root user
 USER lottery
 
