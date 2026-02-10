@@ -30,21 +30,25 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 DEBUG = os.environ.get('DEBUG', True)
 
-_allowed = os.environ.get(
-    'ALLOWED_HOSTS',
-    'localhost,127.0.0.1'
-).split(',')
-_allowed = [h.strip() for h in _allowed if h.strip()]
-# Always allow Render.com (env ALLOWED_HOSTS may override default and omit these)
-for host in ('lottery-system-demo.onrender.com', '.onrender.com'):
-    if host not in _allowed:
-        _allowed.append(host)
-# Add Railway domains when DATABASE_URL is set (PaaS deployment)
-if os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_PRIVATE_URL'):
-    for host in ('.railway.app', '.up.railway.app'):
+# ALLOWED_HOSTS: On Render, allow any host so env overrides cannot break the app.
+# Otherwise build from env or default and ensure Render/Railway hosts are included.
+_on_render = os.environ.get('RENDER') or os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if _on_render:
+    ALLOWED_HOSTS = ['*']
+else:
+    _allowed = os.environ.get(
+        'ALLOWED_HOSTS',
+        'localhost,127.0.0.1'
+    ).split(',')
+    _allowed = [h.strip() for h in _allowed if h.strip()]
+    for host in ('lottery-system-demo.onrender.com', '.onrender.com'):
         if host not in _allowed:
             _allowed.append(host)
-ALLOWED_HOSTS = _allowed
+    if os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_PRIVATE_URL'):
+        for host in ('.railway.app', '.up.railway.app'):
+            if host not in _allowed:
+                _allowed.append(host)
+    ALLOWED_HOSTS = _allowed
 
 INSTALLED_APPS = [
     'django.contrib.admin',
