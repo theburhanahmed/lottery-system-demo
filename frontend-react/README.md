@@ -2,6 +2,8 @@
 
 This is the React + TypeScript frontend for the lottery system, integrated from Magic Patterns design.
 
+**Full setup and env reference:** [docs/setup/SETUP.md](../docs/setup/SETUP.md) · [docs/setup/ENVIRONMENT_VARIABLES.md](../docs/setup/ENVIRONMENT_VARIABLES.md)
+
 ## 🚀 Quick Start
 
 ### Prerequisites

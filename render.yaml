@@ -1,0 +1,61 @@
+# Render Blueprint – https://docs.render.com/blueprint-spec
+# Deploy from repo root: connect repo in Render Dashboard and use this Blueprint.
+# Database and services are defined here for easy config.
+
+databases:
+  - name: db
+    plan: free
+    region: oregon
+    postgresMajorVersion: "15"
+    databaseName: lottery_db
+    user: lottery_user
+
+services:
+  # Django backend (Docker)
+  - type: web
+    name: backend
+    runtime: docker
+    region: oregon
+    rootDir: backend
+    dockerfilePath: Dockerfile
+    dockerContext: backend
+    healthCheckPath: /api/health/
+    preDeployCommand: python manage.py migrate --noinput
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+        # Set in Dashboard to include your frontend URL, e.g. https://frontend-xxx.onrender.com
+      # Optional: set in Dashboard for production
+      # - key: STRIPE_SECRET_KEY
+      #   sync: false
+      # - key: STRIPE_WEBHOOK_SECRET
+      #   sync: false
+      # - key: AWS_ACCESS_KEY_ID (etc.) for S3/Spaces
+      #   sync: false
+
+  # React static site (Vite)
+  - type: web
+    name: frontend
+    runtime: static
+    rootDir: frontend-react
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+        # Set in Dashboard to backend URL + /api, e.g. https://backend-xxx.onrender.com/api
+      - key: VITE_STRIPE_PUBLIC_KEY
+        sync: false
+        # Set in Dashboard to your Stripe publishable key
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

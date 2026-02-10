@@ -2,6 +2,8 @@
 
 Complete Django REST Framework backend for the Lottery System with JWT authentication, user management, lottery administration, and transaction tracking.
 
+**Full setup and env reference:** [docs/setup/SETUP.md](../docs/setup/SETUP.md) · [docs/setup/ENVIRONMENT_VARIABLES.md](../docs/setup/ENVIRONMENT_VARIABLES.md)
+
 ## Overview
 
 The backend provides a robust REST API with:
@@ -44,9 +46,10 @@ backend/
 │       ├── views.py        # Transaction viewsets
 │       ├── serializers.py  # Serializers
 │       └── urls.py         # URL routing
-├── lottery/                 # Legacy app folder
-│   ├── settings.py         # Django configuration
-│   └── __init__.py
+├── lottery/                 # Project config
+│   ├── settings/           # Django settings package (base, database, logging)
+│   ├── urls.py
+│   └── wsgi.py
 ├── lotteryproject/          # Main project config
 │   ├── urls.py             # Main URL routing
 │   ├── settings.py         # Django settings
@@ -378,6 +381,8 @@ python manage.py collectstatic
 
 # Run tests
 python manage.py test
+# Or with pytest (see pytest.ini)
+pytest
 
 # Check for errors
 python manage.py check

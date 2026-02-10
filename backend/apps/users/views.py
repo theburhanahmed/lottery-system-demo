@@ -541,9 +541,9 @@ class UserViewSet(viewsets.ModelViewSet):
         )
         return Response({'message': 'Logged out successfully'})
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], url_path='refresh-token')
     def refresh_token(self, request):
-        """Refresh JWT token"""
+        """Refresh JWT token. Exposed as .../users/refresh-token/ for frontend compatibility."""
         from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
         try:
             refresh_token = request.data.get('refresh')

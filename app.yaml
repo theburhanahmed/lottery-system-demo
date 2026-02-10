@@ -1,3 +1,4 @@
+# DigitalOcean App Platform (or similar). For Render.com use render.yaml in repo root; see docs/deployment/RENDER_DEPLOYMENT.md.
 name: lottery-system
 region: nyc
 
