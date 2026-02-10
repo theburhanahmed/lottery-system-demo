@@ -111,6 +111,33 @@ WSGI_APPLICATION = 'lottery.wsgi.application'
 # Railway and many PaaS providers use DATABASE_URL (postgres://...)
 DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_PRIVATE_URL')
 
+def _parse_db_url(url):
+    """Parse postgresql:// URL into Django DATABASES config (stdlib only, no django_environ)."""
+    from urllib.parse import urlparse, unquote
+    parsed = urlparse(url)
+    netloc = parsed.netloc
+    if '@' in netloc:
+        auth, host_port = netloc.rsplit('@', 1)
+        parts = auth.split(':', 1)
+        user = unquote(parts[0])
+        password = unquote(parts[1]) if len(parts) > 1 else ''
+    else:
+        user, password = '', ''
+        host_port = netloc
+    if ':' in host_port:
+        host, port = host_port.rsplit(':', 1)
+    else:
+        host, port = host_port, '5432'
+    name = unquote((parsed.path or '/').lstrip('/'))
+    return {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': name,
+        'USER': user,
+        'PASSWORD': password,
+        'HOST': host,
+        'PORT': port,
+    }
+
 def _resolve_host_to_ipv4(host, port=5432):
     """Resolve hostname to IPv4 so connections work from environments (e.g. Render) where IPv6 is unreachable."""
     if not host or host in ('localhost', '127.0.0.1'):
@@ -125,12 +152,10 @@ def _resolve_host_to_ipv4(host, port=5432):
     return host
 
 if DATABASE_URL:
-    import django_environ
     # Railway/Heroku use postgres:// but psycopg2 requires postgresql://
     if DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = 'postgresql://' + DATABASE_URL[9:]
-    env = django_environ.Env()
-    DATABASES = {'default': env.db_url_config(DATABASE_URL)}
+    DATABASES = {'default': _parse_db_url(DATABASE_URL)}
     # Force IPv4 for remote DB (e.g. Supabase) to avoid "Network is unreachable" on IPv6 from Render
     host = DATABASES['default'].get('HOST', '')
     if host:
