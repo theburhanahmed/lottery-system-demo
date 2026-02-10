@@ -6,7 +6,7 @@ A comprehensive lottery system prototype with user and admin features. Built wit
 
 - **Backend:** See [docs/setup/SETUP.md](docs/setup/SETUP.md) and [backend/README.md](backend/README.md).
 - **Frontend (React):** `cd frontend-react && npm install && npm run dev` — see [frontend-react/README.md](frontend-react/README.md).
-- **Deploy:** Use [render.yaml](render.yaml) for Render.com (includes PostgreSQL). See [docs/deployment/](docs/deployment/).
+- **Deploy:** Backend on [Render](https://render.com) (see [docs/deployment/DEPLOY.md](docs/deployment/DEPLOY.md)), frontend on [Vercel](https://vercel.com). One guide: [docs/deployment/DEPLOY.md](docs/deployment/DEPLOY.md).
 
 ## Documentation
 
