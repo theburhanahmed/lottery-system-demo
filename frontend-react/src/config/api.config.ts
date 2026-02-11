@@ -17,6 +17,10 @@ export const STRIPE_CONFIG = {
   publicKey: getEnvVar('VITE_STRIPE_PUBLIC_KEY', ''),
 }
 
+export const RAZORPAY_CONFIG = {
+  keyId: getEnvVar('VITE_RAZORPAY_KEY_ID', ''),
+}
+
 export const APP_CONFIG = {
   env: getEnvVar('VITE_APP_ENV', 'development'),
   isDevelopment: getEnvVar('VITE_APP_ENV', 'development') === 'development',

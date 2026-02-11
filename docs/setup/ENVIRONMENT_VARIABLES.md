@@ -29,6 +29,14 @@ This document describes all environment variables used in the Lottery System.
 - `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret (REQUIRED for webhooks)
 - `STRIPE_CURRENCY` - Currency code (default: `usd`)
 
+### Razorpay Configuration (India: UPI, cards, netbanking, wallets)
+- `RAZORPAY_KEY_ID` - Razorpay key ID (from Dashboard → API Keys). Enables India deposit tab.
+- `RAZORPAY_KEY_SECRET` - Razorpay secret key.
+- `RAZORPAY_WEBHOOK_SECRET` - (Optional) Webhook signing secret for `payment.captured` events.
+- `RAZORPAY_CURRENCY` - Currency for Razorpay orders (default: `INR`).
+
+Frontend: set `VITE_RAZORPAY_KEY_ID` to the same key ID so the checkout script can open the Razorpay modal.
+
 ## Optional Variables
 
 ### Email Configuration
@@ -104,6 +112,12 @@ STRIPE_PUBLIC_KEY=pk_live_...
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_CURRENCY=usd
+
+# Razorpay (India)
+RAZORPAY_KEY_ID=rzp_live_...
+RAZORPAY_KEY_SECRET=...
+RAZORPAY_WEBHOOK_SECRET=...
+RAZORPAY_CURRENCY=INR
 
 # Email
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend

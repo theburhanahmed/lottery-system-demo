@@ -1,6 +1,19 @@
 from rest_framework import serializers
-from apps.payments.models import StripeCustomer, PaymentIntent
+from apps.payments.models import StripeCustomer, PaymentIntent, RazorpayOrder
 from apps.transactions.models import Transaction
+
+
+class CreateRazorpayOrderSerializer(serializers.Serializer):
+    """Serializer for creating a Razorpay order (India: UPI, cards, netbanking)."""
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=1)
+    currency = serializers.CharField(default="INR", max_length=3, required=False)
+
+
+class VerifyRazorpayPaymentSerializer(serializers.Serializer):
+    """Serializer for verifying Razorpay payment after checkout."""
+    razorpay_order_id = serializers.CharField(required=True)
+    razorpay_payment_id = serializers.CharField(required=True)
+    razorpay_signature = serializers.CharField(required=True)
 
 
 class PaymentIntentSerializer(serializers.ModelSerializer):

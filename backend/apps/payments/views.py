@@ -17,9 +17,12 @@ from apps.payments.serializers import (
     CreatePaymentIntentSerializer,
     ConfirmPaymentIntentSerializer,
     SavePaymentMethodSerializer,
-    StripeCustomerSerializer
+    StripeCustomerSerializer,
+    CreateRazorpayOrderSerializer,
+    VerifyRazorpayPaymentSerializer,
 )
-from apps.payments.models import PaymentIntent
+from apps.payments.models import PaymentIntent, RazorpayOrder
+from apps.payments.razorpay_service import RazorpayService
 from apps.common.exceptions import PaymentError
 
 logger = logging.getLogger(__name__)
@@ -321,5 +324,192 @@ def stripe_webhook(request):
 
     else:
         logger.info(f"Unhandled event type: {event['type']}")
+
+    return Response({'status': 'success'}, status=status.HTTP_200_OK)
+
+
+# ---------- Razorpay (India: UPI, cards, netbanking, wallets) ----------
+
+
+@api_view(['GET'])
+@permission_classes([])
+def get_razorpay_config(request):
+    """
+    Get Razorpay key and currency for frontend.
+    GET /api/payments/razorpay/config/
+    """
+    from django.conf import settings
+    return Response(
+        {
+            'key_id': settings.RAZORPAY_KEY_ID,
+            'currency': getattr(settings, 'RAZORPAY_CURRENCY', 'INR'),
+            'available': RazorpayService.is_available(),
+        },
+        status=status.HTTP_200_OK
+    )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_razorpay_order(request):
+    """
+    Create a Razorpay order for deposit (India: UPI, cards, netbanking, wallets).
+    POST /api/payments/razorpay/create-order/
+    """
+    from apps.users.responsible_gaming import ResponsibleGamingService
+
+    if not RazorpayService.is_available():
+        return Response(
+            {'error': 'Razorpay is not configured'},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE
+        )
+
+    serializer = CreateRazorpayOrderSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    user = request.user
+    amount = serializer.validated_data['amount']
+    currency = serializer.validated_data.get('currency', 'INR')
+
+    is_excluded, exclusion_reason = ResponsibleGamingService.check_self_exclusion(user)
+    if is_excluded:
+        return Response(
+            {'error': exclusion_reason},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    is_valid, error_message = ResponsibleGamingService.check_deposit_limit(user, float(amount))
+    if not is_valid:
+        return Response(
+            {'error': error_message},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        order = RazorpayService.create_order(user, amount=amount, currency=currency)
+        return Response(
+            {
+                'order_id': order.razorpay_order_id,
+                'amount': str(order.amount),
+                'currency': order.currency,
+            },
+            status=status.HTTP_201_CREATED
+        )
+    except ValueError as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        logger.error(f"Razorpay create order error: {e}")
+        return Response(
+            {'error': 'Failed to create payment order. Please try again.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_razorpay_payment(request):
+    """
+    Verify Razorpay payment after successful checkout and credit wallet.
+    POST /api/payments/razorpay/verify/
+    """
+    if not RazorpayService.is_available():
+        return Response(
+            {'error': 'Razorpay is not configured'},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE
+        )
+
+    serializer = VerifyRazorpayPaymentSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    data = serializer.validated_data
+    order_id = data['razorpay_order_id']
+    payment_id = data['razorpay_payment_id']
+    signature = data['razorpay_signature']
+
+    if not RazorpayService.verify_payment_signature(order_id, payment_id, signature):
+        return Response(
+            {'error': 'Payment verification failed'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        order = RazorpayOrder.objects.get(
+            razorpay_order_id=order_id,
+            user=request.user
+        )
+    except RazorpayOrder.DoesNotExist:
+        return Response(
+            {'error': 'Order not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    try:
+        RazorpayService.handle_payment_success(order_id, razorpay_payment_id=payment_id)
+        return Response(
+            {'message': 'Payment successful', 'order_id': order_id},
+            status=status.HTTP_200_OK
+        )
+    except Exception as e:
+        logger.error(f"Razorpay verify/handle success error: {e}")
+        return Response(
+            {'error': 'Failed to complete payment'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@csrf_exempt
+@api_view(['POST'])
+def razorpay_webhook(request):
+    """
+    Handle Razorpay webhook (e.g. payment.captured).
+    POST /api/payments/razorpay/webhook/
+    """
+    from django.conf import settings
+    import hmac
+    import hashlib
+
+    if not RazorpayService.is_available():
+        return Response({'status': 'ignored'}, status=status.HTTP_200_OK)
+
+    payload = request.body
+    sig_header = request.META.get('HTTP_X_RAZORPAY_SIGNATURE', '')
+    webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
+
+    if not webhook_secret:
+        return Response({'status': 'success'}, status=status.HTTP_200_OK)
+
+    try:
+        expected_sig = hmac.new(
+            webhook_secret.encode('utf-8'),
+            payload,
+            hashlib.sha256
+        ).hexdigest()
+        if not hmac.compare_digest(expected_sig, sig_header):
+            return Response({'error': 'Invalid signature'}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({'error': 'Invalid webhook'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        event = json.loads(payload)
+    except json.JSONDecodeError:
+        return Response({'error': 'Invalid JSON'}, status=status.HTTP_400_BAD_REQUEST)
+
+    event_type = event.get('event')
+    if event_type == 'payment.captured':
+        payment_entity = event.get('payload', {}).get('payment', {}).get('entity', {})
+        order_id = payment_entity.get('order_id')
+        payment_id = payment_entity.get('id')
+        if order_id:
+            try:
+                RazorpayService.handle_payment_success(order_id, razorpay_payment_id=payment_id)
+            except Exception as e:
+                logger.error(f"Razorpay webhook handle_payment_success error: {e}")
+    else:
+        logger.info(f"Razorpay unhandled event: {event_type}")
 
     return Response({'status': 'success'}, status=status.HTTP_200_OK)

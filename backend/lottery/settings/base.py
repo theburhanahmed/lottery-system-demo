@@ -360,6 +360,12 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 STRIPE_CURRENCY = os.environ.get('STRIPE_CURRENCY', 'usd')
 
+# Razorpay (India: UPI, cards, netbanking, wallets)
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
+RAZORPAY_WEBHOOK_SECRET = os.environ.get('RAZORPAY_WEBHOOK_SECRET', '')
+RAZORPAY_CURRENCY = os.environ.get('RAZORPAY_CURRENCY', 'INR')
+
 CELERY_BEAT_SCHEDULE = {
     'check-and-close-lotteries': {'task': 'apps.lotteries.tasks.check_and_close_lotteries', 'schedule': 3600.0},
     'conduct-scheduled-draws': {'task': 'apps.lotteries.tasks.conduct_scheduled_draws', 'schedule': 900.0},
