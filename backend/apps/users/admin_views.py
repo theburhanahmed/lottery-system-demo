@@ -1,13 +1,14 @@
 """
 Admin-specific views for user management.
 """
+from django.utils import timezone
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
 from rest_framework.pagination import PageNumberPagination
 
-from apps.users.models import User
+from apps.users.models import User, AuditLog
 from apps.users.serializers import UserDetailSerializer
 from apps.users.permissions import IsAdminUser
 
@@ -109,4 +110,29 @@ class AdminUserViewSet(viewsets.ModelViewSet):
                 {'error': 'Invalid amount'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+    @action(detail=True, methods=['post'])
+    def kyc_review(self, request, pk=None):
+        """Approve or reject a user's KYC submission (admin only)."""
+        user = self.get_object()
+        new_status = request.data.get('status')
+        if new_status not in ('VERIFIED', 'REJECTED'):
+            return Response(
+                {'error': 'status must be VERIFIED or REJECTED'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        user.kyc_status = new_status
+        if new_status == 'VERIFIED':
+            user.kyc_verified_at = timezone.now()
+        user.save()
+        AuditLog.objects.create(
+            user=request.user,
+            action='EMAIL_VERIFICATION',
+            description=f'KYC {new_status.lower()} for user {user.username}'
+        )
+        return Response({
+            'message': f'KYC {new_status.lower()}',
+            'kyc_status': user.kyc_status,
+            'kyc_verified_at': user.kyc_verified_at.isoformat() if user.kyc_verified_at else None,
+        })
 

@@ -6,3 +6,6 @@ export * from './stripe.service';
 export * from './razorpay.service';
 export * from './user.service';
 export * from './wallet.service';
+export * from './slots.service';
+export * from './notifications.service';
+export * from './games.service';

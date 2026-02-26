@@ -161,9 +161,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'first_name', 'last_name',
             'is_admin', 'role', 'wallet_balance', 'phone_number', 'date_of_birth',
             'address', 'city', 'country', 'is_verified', 'email_verified',
-            'age_verified', 'age_verified_at', 'profile', 'created_at', 'updated_at'
+            'age_verified', 'age_verified_at', 'is_2fa_enabled', 'profile', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'wallet_balance', 'created_at', 'updated_at', 'email_verified']
+        read_only_fields = ['id', 'wallet_balance', 'created_at', 'updated_at', 'email_verified', 'is_2fa_enabled']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

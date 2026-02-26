@@ -36,6 +36,8 @@ urlpatterns = [
     path('api/', include('apps.notifications.urls')),
     path('api/', include('apps.analytics.urls')),
     path('api/', include('apps.payments.urls')),
+    path('api/slots/', include('apps.slots.urls')),
+    path('api/games/', include('apps.games.urls')),
     
     # Health check endpoints
     path('api/health/', include('apps.common.urls')),

@@ -8,7 +8,7 @@ import { CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 
 export function ForgotPassword() {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
@@ -68,9 +68,9 @@ export function ForgotPassword() {
                 </div>
               )}
 
-              <Input label="Email Address" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+              <Input label="Email Address" type="email" placeholder="you@example.com" value={email} onChange={val => setEmail(val)} required autoFocus />
 
-              <Button type="submit" className="w-full" isLoading={isLoading}>
+              <Button type="submit" className="w-full" loading={loading}>
                 Send Reset Link
               </Button>
             </form>

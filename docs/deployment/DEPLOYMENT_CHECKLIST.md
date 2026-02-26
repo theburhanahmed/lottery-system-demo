@@ -2,6 +2,8 @@
 
 Use this checklist before deploying to production.
 
+**Implementation status:** Cookie consent (banner + privacy link), 2FA (Profile Security), KYC (Profile Verification + admin `kyc_review` API), lottery cover image upload, Sentry (backend + frontend when DSN set), and Celery deployment notes are implemented. See [CELERY_DEPLOYMENT.md](CELERY_DEPLOYMENT.md) for worker/beat setup.
+
 ## Pre-Deployment
 
 ### Environment Setup
@@ -43,8 +45,9 @@ Use this checklist before deploying to production.
 
 ### Services
 - [ ] Gunicorn configured
-- [ ] Celery worker configured
-- [ ] Celery beat configured
+- [ ] Celery worker configured (see [CELERY_DEPLOYMENT.md](CELERY_DEPLOYMENT.md))
+- [ ] Celery beat configured (see [CELERY_DEPLOYMENT.md](CELERY_DEPLOYMENT.md))
+- [ ] Redis available for Celery broker and cache
 - [ ] Nginx configured
 - [ ] All services enabled
 

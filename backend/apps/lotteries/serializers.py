@@ -10,6 +10,7 @@ class LotterySerializer(serializers.ModelSerializer):
     total_tickets_sold = serializers.SerializerMethodField()
     revenue = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False, allow_null=True, write_only=True)
 
     class Meta:
         model = Lottery
@@ -17,7 +18,7 @@ class LotterySerializer(serializers.ModelSerializer):
             'id', 'name', 'description', 'ticket_price', 'total_tickets',
             'available_tickets', 'prize_amount', 'status', 'draw_date',
             'created_by', 'total_participants', 'total_tickets_sold',
-            'revenue', 'image_url', 'created_at', 'updated_at'
+            'revenue', 'image_url', 'image', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
 

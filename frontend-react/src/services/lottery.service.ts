@@ -237,6 +237,27 @@ export const lotteryService = {
     }
   },
 
+  // Get all user's tickets across all lotteries
+  async getAllTickets(): Promise<Ticket[]> {
+    try {
+      const response = await apiClient.get<any>('/tickets/')
+      const items = Array.isArray(response) ? response : response.results || []
+      return items.map((ticket: any) => {
+        const lottery = ticket.lottery || {}
+        return {
+          id: ticket.id?.toString() || '',
+          lotteryId: (lottery.id ?? ticket.lottery_id ?? lottery)?.toString() || '',
+          userId: ticket.user_id?.toString() || ticket.user?.id?.toString() || '',
+          purchaseDate: ticket.purchased_at || new Date().toISOString(),
+          ticketNumber: String(ticket.ticket_number ?? ''),
+        }
+      })
+    } catch (error) {
+      console.error('Failed to fetch tickets:', error)
+      return []
+    }
+  },
+
   // Get user's tickets for a lottery
   async getMyTickets(lotteryId: string): Promise<Ticket[]> {
     try {

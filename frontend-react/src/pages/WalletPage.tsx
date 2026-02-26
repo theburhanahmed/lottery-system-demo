@@ -1,218 +1,253 @@
-import React, { useEffect, useState } from 'react';
-import { useWallet } from '../contexts/WalletContext';
-import { useAuth } from '../contexts/AuthContext';
-import { Card, CardContent } from '../components/ui/Card';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Wallet,
+  CreditCard,
+  Building2,
+  Bitcoin,
+  TrendingUp,
+  Trophy,
+  Ticket,
+  ArrowDownLeft,
+  ArrowUpRight } from
+'lucide-react';
+import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { TransactionHistory } from '../components/wallet/TransactionHistory';
-import { WithdrawalModal } from '../components/wallet/WithdrawalModal';
-import { WithdrawalHistory } from '../components/wallet/WithdrawalHistory';
-import { Modal } from '../components/ui/Modal';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs';
-import { Wallet, Plus, CreditCard, ArrowDownToLine, Smartphone, Banknote } from 'lucide-react';
-import { walletService, WithdrawalResponse } from '../services/wallet.service';
-import { razorpayService } from '../services/razorpay.service';
-
-type PaymentMethodTab = 'razorpay' | 'card';
-
-export function WalletPage() {
-  const { user } = useAuth();
-  const { balance, transactions, deposit, isLoading, refreshWallet } = useWallet();
-  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
-  const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
-  const [depositAmount, setDepositAmount] = useState('');
-  const [paymentTab, setPaymentTab] = useState<PaymentMethodTab>('razorpay');
-  const [razorpayAvailable, setRazorpayAvailable] = useState(false);
-  const [depositError, setDepositError] = useState<string | null>(null);
-  const [withdrawals, setWithdrawals] = useState<WithdrawalResponse[]>([]);
-  const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(false);
-  const [isRazorpayLoading, setIsRazorpayLoading] = useState(false);
-
-  useEffect(() => {
-    fetchWithdrawals();
-  }, []);
-
-  useEffect(() => {
-    razorpayService.getConfig().then((c) => setRazorpayAvailable(c.available)).catch(() => setRazorpayAvailable(false));
-  }, [isDepositModalOpen]);
-
-  const fetchWithdrawals = async () => {
-    setIsLoadingWithdrawals(true);
-    try {
-      const data = await walletService.getWithdrawals();
-      setWithdrawals(data);
-    } catch (error) {
-      console.error('Failed to fetch withdrawals:', error);
-    } finally {
-      setIsLoadingWithdrawals(false);
-    }
-  };
-
-  const handleRazorpayDeposit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setDepositError(null);
-    const amount = parseFloat(depositAmount);
-    if (amount < 10) {
-      setDepositError('Minimum deposit is ₹10');
-      return;
-    }
-    setIsRazorpayLoading(true);
-    try {
-      const order = await razorpayService.createOrder(amount, 'INR');
-      await razorpayService.openCheckout(order, {
-        userEmail: user?.email,
-        userName: user?.first_name || user?.username ? `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || user?.username : undefined,
-        onSuccess: () => {
-          refreshWallet();
-          setIsDepositModalOpen(false);
-          setDepositAmount('');
-        },
-        onDismiss: () => setIsRazorpayLoading(false),
-        onError: (msg) => {
-          setDepositError(msg);
-          setIsRazorpayLoading(false);
-        },
-      });
-    } catch (err: any) {
-      setDepositError(err?.message || 'Failed to start payment');
-      setIsRazorpayLoading(false);
-    }
-  };
-
-  const handleCardDeposit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const amount = parseFloat(depositAmount);
-    if (amount > 0) {
-      await deposit(amount);
-      setIsDepositModalOpen(false);
-      setDepositAmount('');
-    }
-  };
-
-  const handleWithdrawalSuccess = () => {
-    fetchWithdrawals();
-  };
-
-  const quickAmounts = paymentTab === 'razorpay' ? [100, 500, 1000, 2000] : [10, 25, 50, 100];
-
-  return <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-900">My Wallet</h1>
-      </div>
-
-      {/* Balance Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2 bg-gradient-to-br from-brand-slate-900 to-brand-slate-800 text-white border border-brand-gold-500/20 shadow-glow-gold">
-          <CardContent className="p-8">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-slate-400 font-medium mb-1">Total Balance</p>
-                <h2 className="text-4xl font-bold tabular-nums">
-                  ${balance.toFixed(2)}
-                </h2>
-              </div>
-              <div className="p-3 bg-white/10 rounded-xl">
-                <Wallet className="h-8 w-8 text-white" />
-              </div>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button onClick={() => setIsDepositModalOpen(true)} className="bg-brand-gold-500 hover:bg-brand-gold-400 text-white border-none shadow-lg hover:shadow-glow-gold">
-                <Plus className="mr-2 h-4 w-4" />
-                Deposit Funds
-              </Button>
-              <Button onClick={() => setIsWithdrawalModalOpen(true)} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                <ArrowDownToLine className="mr-2 h-4 w-4" />
-                Withdraw
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Info */}
-        <Card className="flex flex-col justify-center items-center text-center p-6">
-          <div className="w-12 h-12 bg-brand-gold-100 rounded-full flex items-center justify-center mb-4">
-            <CreditCard className="h-6 w-6 text-brand-gold-600" />
-          </div>
-          <h3 className="font-medium text-slate-900">Secure Payments</h3>
-          <p className="text-sm text-slate-500 mt-2">
-            Your funds are held securely. Deposits are instant and withdrawals are processed within 1-3 business days.
-          </p>
-        </Card>
-      </div>
-
-      {/* Withdrawal History */}
-      <WithdrawalHistory withdrawals={withdrawals} />
-
-      {/* Transaction History */}
-      <TransactionHistory transactions={transactions} />
-
-      {/* Deposit Modal */}
-      <Modal isOpen={isDepositModalOpen} onClose={() => { setIsDepositModalOpen(false); setDepositError(null); }} title="Deposit Funds">
-        <Tabs value={paymentTab} onValueChange={(v) => { setPaymentTab(v as PaymentMethodTab); setDepositError(null); }}>
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="razorpay" disabled={!razorpayAvailable} className="flex items-center gap-2">
-              <Smartphone className="h-4 w-4" />
-              UPI / Netbanking (India)
-            </TabsTrigger>
-            <TabsTrigger value="card" className="flex items-center gap-2">
-              <Banknote className="h-4 w-4" />
-              Card (Stripe)
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="razorpay" className="mt-0">
-            <form onSubmit={handleRazorpayDeposit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Amount (INR)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">₹</span>
-                  <Input type="number" min="10" step="1" placeholder="0" className="pl-8" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} required autoFocus />
-                </div>
-                <p className="text-xs text-slate-500">Minimum deposit is ₹10. Pay via UPI, card, netbanking or wallet.</p>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                {quickAmounts.map(amt => (
-                  <button key={amt} type="button" onClick={() => setDepositAmount(amt.toString())} className="py-2 px-3 text-sm font-medium border-2 border-slate-200 rounded-md hover:bg-brand-gold-50 hover:border-brand-gold-500 hover:text-brand-gold-700 transition-all">
-                    ₹{amt}
-                  </button>
-                ))}
-              </div>
-              {depositError && <p className="text-sm text-red-600">{depositError}</p>}
-              <Button type="submit" className="w-full" isLoading={isRazorpayLoading} disabled={isRazorpayLoading || !razorpayAvailable}>
-                {razorpayAvailable ? 'Pay with Razorpay (UPI / Card / Netbanking)' : 'Razorpay not configured'}
-              </Button>
-              <p className="text-xs text-center text-slate-500">Secured by Razorpay. Supports GPay, PhonePe, Paytm, cards & netbanking.</p>
-            </form>
-          </TabsContent>
-
-          <TabsContent value="card" className="mt-0">
-            <form onSubmit={handleCardDeposit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Amount (USD)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                  <Input type="number" min="5" step="1" placeholder="0.00" className="pl-8" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} required />
-                </div>
-                <p className="text-xs text-slate-500">Minimum deposit is $5.00</p>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                {quickAmounts.map(amt => (
-                  <button key={amt} type="button" onClick={() => setDepositAmount(amt.toString())} className="py-2 px-3 text-sm font-medium border-2 border-slate-200 rounded-md hover:bg-brand-gold-50 hover:border-brand-gold-500 hover:text-brand-gold-700 transition-all">
-                    ${amt}
-                  </button>
-                ))}
-              </div>
-              <Button type="submit" className="w-full" isLoading={isLoading}>
-                Confirm Deposit
-              </Button>
-              <p className="text-xs text-center text-slate-500">Payments are processed securely via Stripe.</p>
-            </form>
-          </TabsContent>
-        </Tabs>
-      </Modal>
-
-      {/* Withdrawal Modal */}
-      <WithdrawalModal isOpen={isWithdrawalModalOpen} onClose={() => setIsWithdrawalModalOpen(false)} onSuccess={handleWithdrawalSuccess} />
-    </div>;
+import type { AdapterUser, AdapterTransaction } from '../types/adapter';
+interface WalletPageProps {
+  user: AdapterUser;
+  transactions: AdapterTransaction[];
+  onAddFunds: (amount: number, method: string) => void;
+  onWithdraw: (amount: number, method: string) => void;
 }
+export function WalletPage({
+  user,
+  transactions,
+  onAddFunds,
+  onWithdraw
+}: WalletPageProps) {
+  const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit');
+  const [amount, setAmount] = useState('');
+  const [method, setMethod] = useState('Credit Card');
+  const [loading, setLoading] = useState(false);
+  const presets = [50, 100, 500, 1000];
+  const methods = [
+  {
+    value: 'Credit Card',
+    icon: CreditCard
+  },
+  {
+    value: 'Bank Transfer',
+    icon: Building2
+  },
+  {
+    value: 'Crypto',
+    icon: Bitcoin
+  }];
 
+  const recentTx = transactions.slice(0, 5);
+  const handleAction = () => {
+    const val = parseFloat(amount);
+    if (!val || val <= 0) return;
+    setLoading(true);
+    setTimeout(() => {
+      if (activeTab === 'deposit') {
+        onAddFunds(val, method);
+      } else {
+        onWithdraw(val, method);
+      }
+      setAmount('');
+      setLoading(false);
+    }, 600);
+  };
+  const typeIcon = (type: string) => {
+    if (type === 'deposit') return <TrendingUp size={14} />;
+    if (type === 'winning') return <Trophy size={14} />;
+    if (type === 'withdrawal') return <ArrowUpRight size={14} />;
+    return <Ticket size={14} />;
+  };
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 animate-page-in">
+      <div className="mb-8">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
+          Wallet
+        </h1>
+        <p className="text-gray-500 mt-1">Manage your funds</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Balance Card */}
+        <div className="lg:col-span-1">
+          <div className="bg-gradient-to-br from-emerald-600 to-green-700 rounded-2xl p-6 text-white shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <Wallet size={24} />
+              </div>
+              <div>
+                <p className="text-emerald-100 text-sm">Available Balance</p>
+                <p className="text-3xl font-extrabold">
+                  ${user.walletBalance.toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <div className="flex-1 bg-white/10 rounded-xl p-3 text-center">
+                <p className="text-xs text-emerald-200">Total Deposited</p>
+                <p className="font-bold text-lg">
+                  $
+                  {transactions.
+                  filter((t) => t.type === 'deposit').
+                  reduce((s, t) => s + t.amount, 0).
+                  toLocaleString()}
+                </p>
+              </div>
+              <div className="flex-1 bg-white/10 rounded-xl p-3 text-center">
+                <p className="text-xs text-emerald-200">Total Won</p>
+                <p className="font-bold text-lg">
+                  $
+                  {transactions.
+                  filter((t) => t.type === 'winning').
+                  reduce((s, t) => s + t.amount, 0).
+                  toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Card */}
+        <Card className="lg:col-span-2">
+          <div className="flex border-b border-gray-100 mb-6">
+            <button
+              onClick={() => setActiveTab('deposit')}
+              className={`flex-1 pb-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'deposit' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+
+              <span className="flex items-center justify-center gap-2">
+                <ArrowDownLeft size={18} /> Deposit Funds
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('withdraw')}
+              className={`flex-1 pb-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'withdraw' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+
+              <span className="flex items-center justify-center gap-2">
+                <ArrowUpRight size={18} /> Withdraw Funds
+              </span>
+            </button>
+          </div>
+
+          {/* Preset amounts */}
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            {presets.map((p) =>
+            <button
+              key={p}
+              onClick={() => setAmount(p.toString())}
+              className={`py-2.5 rounded-xl text-sm font-semibold transition-all ${amount === p.toString() ? 'bg-emerald-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+
+                ${p}
+              </button>
+            )}
+          </div>
+
+          {/* Custom amount */}
+          <Input
+            label={
+            activeTab === 'deposit' ? 'Deposit Amount' : 'Withdrawal Amount'
+            }
+            type="number"
+            value={amount}
+            onChange={setAmount}
+            placeholder="Enter amount"
+            icon={<span className="text-gray-400 font-medium">$</span>} />
+
+          {activeTab === 'withdraw' &&
+          amount &&
+          parseFloat(amount) > user.walletBalance &&
+          <p className="text-sm text-red-500 mt-1">
+                Amount exceeds your available balance of $
+                {user.walletBalance.toLocaleString()}
+              </p>
+          }
+
+          {/* Payment method */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {activeTab === 'deposit' ? 'Payment Method' : 'Withdraw To'}
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {methods.map((m) =>
+              <button
+                key={m.value}
+                onClick={() => setMethod(m.value)}
+                className={`flex items-center gap-2 p-3 rounded-xl border-2 text-sm font-medium transition-all ${method === m.value ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+
+                  <m.icon size={18} />
+                  {m.value}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <Button
+            variant={activeTab === 'deposit' ? 'primary' : 'secondary'}
+            size="lg"
+            className="w-full mt-6"
+            onClick={handleAction}
+            loading={loading}
+            disabled={
+            !amount ||
+            parseFloat(amount) <= 0 ||
+            activeTab === 'withdraw' &&
+            parseFloat(amount) > user.walletBalance
+            }>
+
+            {activeTab === 'deposit' ? 'Add Funds' : 'Withdraw Funds'}
+          </Button>
+        </Card>
+      </div>
+
+      {/* Recent Transactions */}
+      <Card className="mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-gray-900">Recent Transactions</h2>
+          <Link to="/transactions">
+            <Button variant="ghost" size="sm">
+              View All
+            </Button>
+          </Link>
+        </div>
+        <div className="divide-y divide-gray-50">
+          {recentTx.map((tx) =>
+          <div key={tx.id} className="flex items-center justify-between py-3">
+              <div className="flex items-center gap-3">
+                <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center ${tx.type === 'deposit' ? 'bg-emerald-50 text-emerald-600' : tx.type === 'winning' ? 'bg-amber-50 text-amber-600' : tx.type === 'withdrawal' ? 'bg-gray-100 text-gray-600' : 'bg-red-50 text-red-500'}`}>
+
+                  {typeIcon(tx.type)}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {tx.description}
+                  </p>
+                  <p className="text-xs text-gray-400">{tx.date}</p>
+                </div>
+              </div>
+              <span
+              className={`text-sm font-bold ${tx.amount > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+
+                {tx.amount > 0 ? '+' : ''}$
+                {Math.abs(tx.amount).toLocaleString()}
+              </span>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <style>{`
+        @keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-page-in { animation: page-in 0.4s ease-out; }
+      `}</style>
+    </div>);
+
+}

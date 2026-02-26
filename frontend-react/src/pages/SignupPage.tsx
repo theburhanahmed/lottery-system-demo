@@ -6,8 +6,6 @@ import { Input } from '../components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/Card';
 import { PasswordStrength, validatePassword } from '../components/auth/PasswordStrength';
 import { AlertCircle } from 'lucide-react';
-import { MainAppNavbar } from '../components/layout/MainAppNavbar';
-
 export function SignupPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -19,9 +17,8 @@ export function SignupPage() {
   const { register, isLoading, error } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleChange = (field: string) => (val: string) => {
+    setFormData(prev => ({ ...prev, [field]: val }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,16 +58,16 @@ export function SignupPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input label="Full Name" name="name" placeholder="John Doe" value={formData.name} onChange={handleChange} required />
-            <Input label="Email" name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required />
-            <Input label="Date of Birth" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} required />
+            <Input label="Full Name" placeholder="John Doe" value={formData.name} onChange={handleChange('name')} />
+            <Input label="Email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange('email')} />
+            <Input label="Date of Birth" type="date" value={formData.dateOfBirth} onChange={handleChange('dateOfBirth')} />
             <div>
-              <Input label="Password" name="password" type="password" placeholder="Create a strong password" value={formData.password} onChange={handleChange} required />
+              <Input label="Password" type="password" placeholder="Create a strong password" value={formData.password} onChange={handleChange('password')} />
               <PasswordStrength password={formData.password} />
             </div>
-            <Input label="Confirm Password" name="confirmPassword" type="password" placeholder="Re-enter your password" value={formData.confirmPassword} onChange={handleChange} required />
+            <Input label="Confirm Password" type="password" placeholder="Re-enter your password" value={formData.confirmPassword} onChange={handleChange('confirmPassword')} />
 
-            <Button type="submit" className="w-full" isLoading={isLoading}>
+            <Button type="submit" className="w-full" loading={isLoading}>
               Create Account
             </Button>
           </form>
@@ -84,7 +81,6 @@ export function SignupPage() {
           </p>
           </CardFooter>
         </Card>
-        <MainAppNavbar />
       </div>;
 }
 

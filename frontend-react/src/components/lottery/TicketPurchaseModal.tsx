@@ -124,7 +124,7 @@ export function TicketPurchaseModal({ isOpen, onClose, lottery }: TicketPurchase
             <Button variant="outline" className="flex-1" onClick={() => setStep('select')} disabled={isProcessing}>
               Back
             </Button>
-            <Button className="flex-1" onClick={handlePurchase} isLoading={isProcessing}>
+            <Button className="flex-1" onClick={handlePurchase} loading={isProcessing}>
               Confirm Purchase
             </Button>
           </div>

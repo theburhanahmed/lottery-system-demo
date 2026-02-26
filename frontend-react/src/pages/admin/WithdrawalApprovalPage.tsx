@@ -9,7 +9,7 @@ import { cn } from '../../utils/cn';
 
 export function WithdrawalApprovalPage() {
   const [withdrawals, setWithdrawals] = useState<WithdrawalResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<WithdrawalResponse | null>(null);
   const [actionNotes, setActionNotes] = useState('');
@@ -103,7 +103,7 @@ export function WithdrawalApprovalPage() {
       <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* Withdrawals Grid */}
-      {isLoading ? (
+      {loading ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-gold-500 mx-auto mb-4"></div>
           <p className="text-slate-600">Loading withdrawals...</p>
@@ -180,11 +180,11 @@ export function WithdrawalApprovalPage() {
 
                   {withdrawal.status === 'pending' && (
                     <div className="flex gap-2 pt-2">
-                      <Button size="sm" variant="outline" className="flex-1 border-emerald-500 text-emerald-600 hover:bg-emerald-50" onClick={e => { e.stopPropagation(); handleApprove(withdrawal.id); }} disabled={isProcessing}>
+                      <Button size="sm" variant="outline" className="flex-1 border-emerald-500 text-emerald-600 hover:bg-emerald-50" onClick={() => handleApprove(withdrawal.id)} disabled={isProcessing}>
                         <CheckCircle2 className="h-4 w-4 mr-1" />
                         Approve
                       </Button>
-                      <Button size="sm" variant="outline" className="flex-1 border-red-500 text-red-600 hover:bg-red-50" onClick={e => { e.stopPropagation(); setSelectedWithdrawal(withdrawal); }} disabled={isProcessing}>
+                      <Button size="sm" variant="outline" className="flex-1 border-red-500 text-red-600 hover:bg-red-50" onClick={() => setSelectedWithdrawal(withdrawal)} disabled={isProcessing}>
                         <XCircle className="h-4 w-4 mr-1" />
                         Reject
                       </Button>
@@ -237,11 +237,11 @@ export function WithdrawalApprovalPage() {
                 <Button variant="outline" className="flex-1" onClick={() => { setSelectedWithdrawal(null); setActionNotes(''); }} disabled={isProcessing}>
                   Cancel
                 </Button>
-                <Button variant="outline" className="flex-1 border-red-500 text-red-600 hover:bg-red-50" onClick={() => handleReject(selectedWithdrawal.id)} isLoading={isProcessing}>
+                <Button variant="outline" className="flex-1 border-red-500 text-red-600 hover:bg-red-50" onClick={() => handleReject(selectedWithdrawal.id)} loading={isProcessing}>
                   <XCircle className="h-4 w-4 mr-1" />
                   Reject
                 </Button>
-                <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700" onClick={() => handleApprove(selectedWithdrawal.id)} isLoading={isProcessing}>
+                <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700" onClick={() => handleApprove(selectedWithdrawal.id)} loading={isProcessing}>
                   <CheckCircle2 className="h-4 w-4 mr-1" />
                   Approve
                 </Button>

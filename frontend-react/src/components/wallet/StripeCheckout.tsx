@@ -99,7 +99,7 @@ export function StripeCheckout({ amount, onSuccess, onError }: StripeCheckoutPro
         </div>
       </div>
 
-      <Button type="submit" className="w-full" isLoading={isProcessing} disabled={!stripe || isProcessing}>
+      <Button type="submit" className="w-full" loading={isProcessing} disabled={!stripe || isProcessing}>
         {isProcessing ? 'Processing...' : `Deposit $${amount.toFixed(2)}`}
       </Button>
 

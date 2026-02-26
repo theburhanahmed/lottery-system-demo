@@ -1,5 +1,3 @@
-export { Layout } from './layout/Layout';
-export { MainAppNavbar } from './layout/MainAppNavbar';
 export { AnalyticsTracker } from './AnalyticsTracker';
 export { AdUnit } from './AdUnit';
 export { Button } from './ui/Button';
@@ -7,7 +5,7 @@ export { Input } from './ui/Input';
 export { Card } from './ui/Card';
 export { Modal } from './ui/Modal';
 export { Badge } from './ui/Badge';
-export { Tabs } from './ui/Tabs';
+export { Tabs, TabsRoot, TabsList, TabsTrigger, TabsContent } from './ui/Tabs';
 export { PasswordStrength } from './auth/PasswordStrength';
 export { LotteryCard } from './lottery/LotteryCard';
 export { DrawCountdown } from './lottery/DrawCountdown';

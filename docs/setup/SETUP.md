@@ -9,7 +9,7 @@ Before starting, ensure you have the following installed:
    python --version
    ```
 
-2. **PostgreSQL 12 or higher**
+2. **PostgreSQL 12 or higher** (optional for local dev – SQLite is used by default)
    ```bash
    psql --version
    ```
@@ -33,35 +33,7 @@ git clone https://github.com/theburhanahmed/lottery-system-demo.git
 cd lottery-system-demo
 ```
 
-### Step 2: Set Up PostgreSQL Database
-
-#### On Linux/Mac:
-
-```bash
-# Connect to PostgreSQL
-sudo -u postgres psql
-
-# Create a new database and user
-CREATE DATABASE lottery_db;
-CREATE USER lottery_user WITH PASSWORD 'lottery_password';
-ALTER ROLE lottery_user SET client_encoding TO 'utf8';
-ALTER ROLE lottery_user SET default_transaction_isolation TO 'read committed';
-ALTER ROLE lottery_user SET default_transaction_deferrable TO on;
-ALTER ROLE lottery_user SET default_transaction_level TO 'read committed';
-GRANT ALL PRIVILEGES ON DATABASE lottery_db TO lottery_user;
-\q
-```
-
-#### On Windows:
-
-```cmd
-# Open PostgreSQL command line
-psql -U postgres
-
-# Then run the same CREATE commands as above
-```
-
-### Step 3: Set Up Backend Environment
+### Step 2: Set Up Backend Environment
 
 ```bash
 cd backend
@@ -82,7 +54,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Step 4: Configure Environment Variables
+### Step 3: Configure Environment Variables
 
 Create a `.env` file in the `backend/` directory:
 
@@ -93,13 +65,8 @@ cat > .env << EOF
 DEBUG=True
 SECRET_KEY=django-insecure-dev-key-change-in-production-12345
 
-# Database Configuration
-DB_ENGINE=django.db.backends.postgresql
-DB_NAME=lottery_db
-DB_USER=lottery_user
-DB_PASSWORD=lottery_password
-DB_HOST=localhost
-DB_PORT=5432
+# Database – SQLite for local dev (no PostgreSQL required)
+DB_ENGINE=django.db.backends.sqlite3
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000
@@ -111,7 +78,7 @@ CSRF_COOKIE_SECURE=False
 EOF
 ```
 
-### Step 5: Run Database Migrations
+### Step 4: Run Database Migrations
 
 ```bash
 # From backend directory
@@ -119,7 +86,9 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### Step 6: Create Superuser (Admin)
+This creates `db.sqlite3` in the backend directory. For production, use PostgreSQL and set `DATABASE_URL` instead.
+
+### Step 5: Create Superuser (Admin)
 
 ```bash
 python manage.py createsuperuser
@@ -131,7 +100,7 @@ python manage.py createsuperuser
 # Password (again): (confirm password)
 ```
 
-### Step 7: Create Sample Data (Optional)
+### Step 6: Create Sample Data (Optional)
 
 ```bash
 python manage.py shell
@@ -172,7 +141,7 @@ print("Sample data created successfully!")
 exit()
 ```
 
-### Step 8: Run Backend Server
+### Step 7: Run Backend Server
 
 ```bash
 # From backend directory
@@ -184,7 +153,7 @@ python manage.py runserver
 
 The backend will be running on `http://localhost:8000`
 
-### Step 9: Set Up Frontend
+### Step 8: Set Up Frontend
 
 In a new terminal, navigate to the frontend directory:
 

@@ -111,13 +111,13 @@ export function ResetPassword() {
               )}
 
               <div>
-                <Input label="New Password" type="password" placeholder="Create a strong password" value={password} onChange={e => setPassword(e.target.value)} required autoFocus />
+                <Input label="New Password" type="password" placeholder="Create a strong password" value={password} onChange={val => setPassword(val)} required autoFocus />
                 <PasswordStrength password={password} />
               </div>
 
-              <Input label="Confirm Password" type="password" placeholder="Re-enter your password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+              <Input label="Confirm Password" type="password" placeholder="Re-enter your password" value={confirmPassword} onChange={val => setConfirmPassword(val)} required />
 
-              <Button type="submit" className="w-full" isLoading={isLoading}>
+              <Button type="submit" className="w-full" loading={isLoading}>
                 Reset Password
               </Button>
             </form>

@@ -12,7 +12,7 @@ export function DrawExecutionPage() {
   const navigate = useNavigate();
   const [lotteries, setLotteries] = useState<Lottery[]>([]);
   const [selectedLottery, setSelectedLottery] = useState<Lottery | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [drawResult, setDrawResult] = useState<DrawResult | null>(null);
@@ -115,7 +115,7 @@ export function DrawExecutionPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {loading ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-gold-500 mx-auto mb-4"></div>
           <p className="text-slate-600">Loading lotteries...</p>
@@ -294,7 +294,7 @@ export function DrawExecutionPage() {
                 <Button variant="outline" className="flex-1" onClick={() => setShowConfirmation(false)} disabled={isExecuting}>
                   Cancel
                 </Button>
-                <Button className="flex-1" onClick={handleExecuteDraw} isLoading={isExecuting}>
+                <Button className="flex-1" onClick={handleExecuteDraw} loading={isExecuting}>
                   <Zap className="mr-2 h-4 w-4" />
                   Confirm & Execute
                 </Button>

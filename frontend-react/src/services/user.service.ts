@@ -15,6 +15,7 @@ export interface UserProfile {
   is_verified: boolean
   email_verified: boolean
   age_verified: boolean
+  is_2fa_enabled?: boolean
   role: string
   profile: {
     total_spent: string
@@ -160,6 +161,33 @@ export const userService = {
   async disable2FA(): Promise<{ message: string }> {
     try {
       const response = await apiClient.post('/users/disable-2fa/')
+      return response
+    } catch (error) {
+      throw handleApiError(error)
+    }
+  },
+
+  async getKycStatus(): Promise<{
+    kyc_status: string
+    kyc_submitted_at: string | null
+    kyc_verified_at: string | null
+  }> {
+    try {
+      const response = await apiClient.get('/users/kyc_status/')
+      return response
+    } catch (error) {
+      throw handleApiError(error)
+    }
+  },
+
+  async submitKyc(files: { id_document?: File; address_proof?: File }): Promise<{ message: string; kyc_status: string }> {
+    try {
+      const formData = new FormData()
+      if (files.id_document) formData.append('id_document', files.id_document)
+      if (files.address_proof) formData.append('address_proof', files.address_proof)
+      const response = await apiClient.post('/users/submit_kyc/', formData, {
+        headers: { 'Content-Type': undefined },
+      })
       return response
     } catch (error) {
       throw handleApiError(error)

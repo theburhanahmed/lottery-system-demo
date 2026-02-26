@@ -216,10 +216,10 @@ class ResponsibleGamingService:
         start_datetime = timezone.make_aware(datetime.combine(target_date, datetime.min.time()))
         end_datetime = timezone.make_aware(datetime.combine(target_date, datetime.max.time()))
         
-        # Get ticket purchases
+        # Get ticket purchases and slots bets (both count as spending)
         purchases = Transaction.objects.filter(
             user=user,
-            type='TICKET_PURCHASE',
+            type__in=['TICKET_PURCHASE', 'SLOTS_BET', 'GAME_ENTRY'],
             status='COMPLETED',
             created_at__gte=start_datetime,
             created_at__lte=end_datetime
@@ -228,7 +228,7 @@ class ResponsibleGamingService:
         # Get prizes won on this date (to subtract from losses)
         prizes = Transaction.objects.filter(
             user=user,
-            type='PRIZE_AWARD',
+            type__in=['PRIZE_AWARD', 'SLOTS_WIN', 'GAME_WIN'],
             status='COMPLETED',
             created_at__gte=start_datetime,
             created_at__lte=end_datetime

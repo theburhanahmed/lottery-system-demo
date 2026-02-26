@@ -7,7 +7,7 @@ import { useAuth } from './AuthContext';
 interface LotteryContextType {
   lotteries: Lottery[];
   tickets: Ticket[];
-  createLottery: (data: Omit<Lottery, 'id' | 'ticketsSold' | 'status' | 'organizationId'>) => Promise<void>;
+  createLottery: (data: Omit<Lottery, 'id' | 'ticketsSold' | 'status' | 'organizationId'> & { imageUrl?: File }) => Promise<void>;
   purchaseTickets: (lotteryId: string, quantity: number) => Promise<boolean>;
   getLottery: (id: string) => Lottery | undefined;
   getUserTickets: () => Ticket[];
@@ -44,7 +44,7 @@ export function LotteryProvider({
     refreshLotteries();
   }, []);
 
-  const createLottery = async (data: Omit<Lottery, 'id' | 'ticketsSold' | 'status' | 'organizationId'>) => {
+  const createLottery = async (data: Omit<Lottery, 'id' | 'ticketsSold' | 'status' | 'organizationId'> & { imageUrl?: File }) => {
     if (!user || user.role !== 'org_admin') return;
     setIsLoading(true);
     try {
@@ -55,6 +55,7 @@ export function LotteryProvider({
         totalTickets: data.totalTickets,
         prizePool: data.prizePool,
         drawDate: data.drawDate,
+        imageUrl: data.imageUrl,
       });
       await refreshLotteries();
     } catch (err) {

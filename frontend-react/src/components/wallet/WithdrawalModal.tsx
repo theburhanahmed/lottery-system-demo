@@ -25,7 +25,7 @@ export function WithdrawalModal({ isOpen, onClose, onSuccess }: WithdrawalModalP
     paypalEmail: '',
     cryptoAddress: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const numAmount = parseFloat(amount) || 0;
@@ -117,7 +117,7 @@ export function WithdrawalModal({ isOpen, onClose, onSuccess }: WithdrawalModalP
             step="0.01"
             placeholder="0.00"
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={val => setAmount(val)}
             helperText={`Minimum: $${MINIMUM_WITHDRAWAL} | Maximum: $${balance.toFixed(2)}`}
             required
             autoFocus
@@ -161,7 +161,7 @@ export function WithdrawalModal({ isOpen, onClose, onSuccess }: WithdrawalModalP
               type="text"
               placeholder="Enter account number"
               value={accountDetails.accountNumber}
-              onChange={e => setAccountDetails({ ...accountDetails, accountNumber: e.target.value })}
+              onChange={val => setAccountDetails({ ...accountDetails, accountNumber: val })}
               required
             />
             <Input
@@ -169,7 +169,7 @@ export function WithdrawalModal({ isOpen, onClose, onSuccess }: WithdrawalModalP
               type="text"
               placeholder="Enter routing number"
               value={accountDetails.routingNumber}
-              onChange={e => setAccountDetails({ ...accountDetails, routingNumber: e.target.value })}
+              onChange={val => setAccountDetails({ ...accountDetails, routingNumber: val })}
               required
             />
           </div>
@@ -181,7 +181,7 @@ export function WithdrawalModal({ isOpen, onClose, onSuccess }: WithdrawalModalP
             type="email"
             placeholder="your@email.com"
             value={accountDetails.paypalEmail}
-            onChange={e => setAccountDetails({ ...accountDetails, paypalEmail: e.target.value })}
+            onChange={val => setAccountDetails({ ...accountDetails, paypalEmail: val })}
             required
           />
         )}
@@ -192,7 +192,7 @@ export function WithdrawalModal({ isOpen, onClose, onSuccess }: WithdrawalModalP
             type="text"
             placeholder="Enter wallet address"
             value={accountDetails.cryptoAddress}
-            onChange={e => setAccountDetails({ ...accountDetails, cryptoAddress: e.target.value })}
+            onChange={val => setAccountDetails({ ...accountDetails, cryptoAddress: val })}
             required
           />
         )}
@@ -222,10 +222,10 @@ export function WithdrawalModal({ isOpen, onClose, onSuccess }: WithdrawalModalP
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={isLoading}>
+          <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={loading}>
             Cancel
           </Button>
-          <Button type="submit" className="flex-1" isLoading={isLoading}>
+          <Button type="submit" className="flex-1" loading={loading}>
             Request Withdrawal
           </Button>
         </div>

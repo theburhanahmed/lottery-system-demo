@@ -47,6 +47,8 @@ else:
     ALLOWED_HOSTS = _allowed
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -69,6 +71,8 @@ INSTALLED_APPS = [
     'apps.notifications',
     'apps.analytics',
     'apps.payments',
+    'apps.slots',
+    'apps.games',
 ]
 
 MIDDLEWARE = [
@@ -104,7 +108,7 @@ JAZZMIN_SETTINGS = {
     'navigation_expanded': True,
     'hide_apps': [],
     'hide_models': [],
-    'order_with_respect_to': ['auth', 'users', 'lotteries', 'transactions', 'payments', 'referrals', 'notifications', 'analytics'],
+    'order_with_respect_to': ['auth', 'users', 'lotteries', 'slots', 'transactions', 'payments', 'referrals', 'notifications', 'analytics'],
     'icons': {
         'auth': 'fas fa-users-cog',
         'auth.user': 'fas fa-user',
@@ -121,6 +125,7 @@ JAZZMIN_SETTINGS = {
         'referrals': 'fas fa-user-friends',
         'notifications': 'fas fa-bell',
         'analytics': 'fas fa-chart-line',
+        'slots': 'fas fa-dice',
         'common': 'fas fa-cog',
     },
     'default_icon_parents': 'fas fa-chevron-circle-right',
@@ -184,6 +189,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'lottery.wsgi.application'
+ASGI_APPLICATION = 'lottery.asgi.application'
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -355,6 +361,20 @@ if not _use_redis:
         }
     }
 
+# Channel layers: Redis when available, else in-memory for local dev
+CHANNEL_LAYERS = {}
+if _use_redis and REDIS_URL:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {'hosts': [REDIS_URL]},
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'},
+    }
+
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
@@ -374,3 +394,16 @@ CELERY_BEAT_SCHEDULE = {
     'check-referral-bonus-expiry': {'task': 'apps.referrals.tasks.check_referral_bonus_expiry', 'schedule': 86400.0},
     'process-pending-referrals': {'task': 'apps.referrals.tasks.process_pending_referrals', 'schedule': 21600.0},
 }
+
+# Sentry (optional – set SENTRY_DSN in production for error tracking)
+_sentry_dsn = os.environ.get('SENTRY_DSN', '').strip()
+if _sentry_dsn:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        environment=os.environ.get('SENTRY_ENVIRONMENT', 'production'),
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=0.1,
+        send_default_pii=False,
+    )

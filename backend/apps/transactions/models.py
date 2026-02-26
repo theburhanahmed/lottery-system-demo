@@ -12,6 +12,11 @@ class Transaction(models.Model):
         ('REFUND', 'Refund'),
         ('ADMIN_ADJUSTMENT', 'Admin Adjustment'),
         ('REFERRAL_BONUS', 'Referral Bonus'),
+        ('SLOTS_BET', 'Slots Bet'),
+        ('SLOTS_WIN', 'Slots Win'),
+        ('GAME_ENTRY', 'Game Entry'),
+        ('GAME_WIN', 'Game Win'),
+        ('GAME_REFUND', 'Game Refund'),
     ]
 
     STATUS_CHOICES = [
@@ -33,6 +38,13 @@ class Transaction(models.Model):
         blank=True,
         related_name='transactions'
     )
+    game_room = models.ForeignKey(
+        'games.GameRoom',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='transactions'
+    )
     description = models.TextField(blank=True)
     reference_id = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -45,9 +57,10 @@ class Transaction(models.Model):
         indexes = [
             models.Index(fields=['user', '-created_at']),
             models.Index(fields=['type', '-created_at']),
-            models.Index(fields=['status']),
-            models.Index(fields=['lottery']),
-        ]
+        models.Index(fields=['status']),
+        models.Index(fields=['lottery']),
+        models.Index(fields=['game_room']),
+    ]
 
     def __str__(self):
         return f"{self.type} - {self.user.username} - {self.amount} ({self.status})"

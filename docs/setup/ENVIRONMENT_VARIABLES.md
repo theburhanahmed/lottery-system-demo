@@ -10,13 +10,13 @@ This document describes all environment variables used in the Lottery System.
 ## Required Variables
 
 ### Database Configuration
-- `DATABASE_URL` - Full PostgreSQL URL (used by Render, Railway, Heroku). When the DB is defined in [render.yaml](../../render.yaml), Render injects this automatically.
-- `DB_ENGINE` - Database engine (default: `django.db.backends.postgresql`), used when `DATABASE_URL` is not set
-- `DB_NAME` - Database name (default: `lottery_db`)
-- `DB_USER` - Database user (default: `lottery_user`)
-- `DB_PASSWORD` - Database password (default: `lottery_password`)
-- `DB_HOST` - Database host (default: `localhost`)
-- `DB_PORT` - Database port (default: `5432`)
+- `DATABASE_URL` - Full PostgreSQL URL (used by Render, Railway, Heroku). When set, PostgreSQL is used. When unset, SQLite is used for local development.
+- `DB_ENGINE` - Database engine (default: `django.db.backends.sqlite3` for local dev), used when `DATABASE_URL` is not set
+- `DB_NAME` - Database path/name (default: `backend/db.sqlite3` for SQLite), used when `DATABASE_URL` is not set
+- `DB_USER` - Database user (PostgreSQL only)
+- `DB_PASSWORD` - Database password (PostgreSQL only)
+- `DB_HOST` - Database host (PostgreSQL only)
+- `DB_PORT` - Database port (PostgreSQL only)
 
 ### Django Configuration
 - `SECRET_KEY` - Django secret key (REQUIRED in production)
@@ -94,13 +94,10 @@ Frontend: set `VITE_RAZORPAY_KEY_ID` to the same key ID so the checkout script c
 ## Example .env File
 
 ```bash
-# Database
-DB_ENGINE=django.db.backends.postgresql
-DB_NAME=lottery_db
-DB_USER=lottery_user
-DB_PASSWORD=lottery_password
-DB_HOST=localhost
-DB_PORT=5432
+# Database – local dev uses SQLite (db.sqlite3) by default
+# For production, set DATABASE_URL instead (PostgreSQL)
+DB_ENGINE=django.db.backends.sqlite3
+# DB_NAME defaults to backend/db.sqlite3 when unset
 
 # Django
 SECRET_KEY=your-secret-key-here-change-in-production
