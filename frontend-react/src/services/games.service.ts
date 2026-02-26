@@ -43,29 +43,62 @@ export interface SnakesLaddersState {
 }
 
 export const gamesService = {
-  listRooms(gameKind: GameKind = 'SNAKES_LADDERS', status = 'WAITING'): Promise<GameRoomListItem[]> {
-    return apiClient
-      .get<GameRoomListItem[]>(`/games/rooms/?game_kind=${gameKind}&status=${status}`)
-      .catch(handleApiError)
+  async listRooms(
+    gameKind: GameKind = 'SNAKES_LADDERS',
+    status = 'WAITING'
+  ): Promise<GameRoomListItem[]> {
+    try {
+      return await apiClient.get<GameRoomListItem[]>(
+        `/games/rooms/?game_kind=${gameKind}&status=${status}`
+      )
+    } catch (error) {
+      throw handleApiError(error)
+    }
   },
 
-  getRoom(roomId: string): Promise<GameRoomDetail> {
-    return apiClient.get<GameRoomDetail>(`/games/rooms/${roomId}/`).catch(handleApiError)
+  async getRoom(roomId: string): Promise<GameRoomDetail> {
+    try {
+      return await apiClient.get<GameRoomDetail>(`/games/rooms/${roomId}/`)
+    } catch (error) {
+      throw handleApiError(error)
+    }
   },
 
-  createRoom(data: { game_kind: GameKind; entry_fee: string; config?: Record<string, unknown> }): Promise<GameRoomDetail> {
-    return apiClient.post<GameRoomDetail>('/games/rooms/', data).catch(handleApiError)
+  async createRoom(data: {
+    game_kind: GameKind
+    entry_fee: string
+    config?: Record<string, unknown>
+  }): Promise<GameRoomDetail> {
+    try {
+      return await apiClient.post<GameRoomDetail>('/games/rooms/', data)
+    } catch (error) {
+      throw handleApiError(error)
+    }
   },
 
-  joinRoom(roomId: string): Promise<GameRoomDetail> {
-    return apiClient.post<GameRoomDetail>(`/games/rooms/${roomId}/join/`).catch(handleApiError)
+  async joinRoom(roomId: string): Promise<GameRoomDetail> {
+    try {
+      return await apiClient.post<GameRoomDetail>(`/games/rooms/${roomId}/join/`)
+    } catch (error) {
+      throw handleApiError(error)
+    }
   },
 
-  leaveRoom(roomId: string): Promise<GameRoomDetail | { status: string }> {
-    return apiClient.post(`/games/rooms/${roomId}/leave/`).catch(handleApiError)
+  async leaveRoom(roomId: string): Promise<GameRoomDetail | { status: string }> {
+    try {
+      return await apiClient.post<GameRoomDetail | { status: string }>(
+        `/games/rooms/${roomId}/leave/`
+      )
+    } catch (error) {
+      throw handleApiError(error)
+    }
   },
 
-  startGame(roomId: string): Promise<GameRoomDetail> {
-    return apiClient.post<GameRoomDetail>(`/games/rooms/${roomId}/start/`).catch(handleApiError)
+  async startGame(roomId: string): Promise<GameRoomDetail> {
+    try {
+      return await apiClient.post<GameRoomDetail>(`/games/rooms/${roomId}/start/`)
+    } catch (error) {
+      throw handleApiError(error)
+    }
   },
 }

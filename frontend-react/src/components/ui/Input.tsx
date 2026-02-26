@@ -15,6 +15,7 @@ interface InputProps {
   helperText?: string;
   required?: boolean;
   autoFocus?: boolean;
+  maxLength?: number;
 }
 export function Input({
   label,
@@ -32,6 +33,7 @@ export function Input({
   helperText,
   required,
   autoFocus,
+  maxLength,
 }: InputProps) {
   return (
     <div className={`space-y-1.5 ${className}`}>
@@ -57,6 +59,7 @@ export function Input({
           step={step}
           required={required}
           autoFocus={autoFocus}
+          maxLength={maxLength}
           className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:opacity-50 disabled:bg-gray-50 ${icon ? 'pl-10' : ''} ${error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200'}`}
         />
       </div>

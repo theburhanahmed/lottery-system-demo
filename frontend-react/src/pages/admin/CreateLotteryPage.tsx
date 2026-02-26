@@ -26,11 +26,11 @@ export function CreateLotteryPage({ onCreate }: CreateLotteryPageProps) {
   const [status, setStatus] = useState<'active' | 'upcoming'>('active');
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const validate = () => {
-    const errs: Record<string, string> = {};
+    const errs: Record<string, string | undefined> = {};
     if (!title.trim()) errs.title = 'Title is required';
     if (!description.trim()) errs.description = 'Description is required';
     if (!ticketPrice || parseFloat(ticketPrice) <= 0)
