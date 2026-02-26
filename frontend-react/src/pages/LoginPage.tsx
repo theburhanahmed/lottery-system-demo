@@ -4,11 +4,14 @@ import { Mail, Lock, User as UserIcon, Eye, EyeOff, Ticket } from 'lucide-react'
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
+
 interface LoginPageProps {
   onLogin: (email: string, password: string, role?: 'user' | 'admin') => void;
+  onRegister?: (data: { email: string; password: string; confirmPassword: string; name: string; dateOfBirth: string }) => Promise<void>;
   addToast: (msg: string, type: 'success' | 'error' | 'info') => void;
 }
-export function LoginPage({ onLogin, addToast }: LoginPageProps) {
+
+export function LoginPage({ onLogin, onRegister, addToast }: LoginPageProps) {
   const navigate = useNavigate();
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -18,31 +21,44 @@ export function LoginPage({ onLogin, addToast }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!email.trim()) errs.email = 'Email is required';else
-    if (!/\S+@\S+\.\S+/.test(email)) errs.email = 'Invalid email address';
-    if (!password) errs.password = 'Password is required';else
-    if (password.length < 6)
-    errs.password = 'Password must be at least 6 characters';
+    if (!email.trim()) errs.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) errs.email = 'Invalid email address';
+    if (!password) errs.password = 'Password is required';
+    else if (password.length < 6) errs.password = 'Password must be at least 6 characters';
     if (tab === 'register') {
       if (!name.trim()) errs.name = 'Name is required';
-      if (password !== confirmPassword)
-      errs.confirmPassword = 'Passwords do not match';
+      if (password !== confirmPassword) errs.confirmPassword = 'Passwords do not match';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
     try {
+      if (tab === 'register' && onRegister) {
+        await onRegister({
+          email,
+          password,
+          confirmPassword,
+          name,
+          dateOfBirth: '',
+        });
+        addToast('Account created! Please check your email to verify.', 'success');
+        navigate('/email-verification');
+        return;
+      }
       const role = email.includes('admin') ? 'admin' : 'user';
       await onLogin(email, password, role);
       navigate('/dashboard');
-    } catch {
-      // Error handled by addToast in adapter
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Something went wrong';
+      addToast(message, 'error');
     } finally {
       setLoading(false);
     }
@@ -201,6 +217,14 @@ export function LoginPage({ onLogin, addToast }: LoginPageProps) {
         <p className="text-center text-xs text-gray-400 mt-6">
           By continuing, you agree to our Terms of Service and Privacy Policy.
         </p>
+        {tab === 'login' && (
+          <p className="text-center text-sm text-gray-500 mt-3">
+            Don&apos;t have an account?{' '}
+            <Link to="/signup" className="text-emerald-600 hover:text-emerald-700 font-medium">
+              Sign up
+            </Link>
+          </p>
+        )}
       </Card>
     </div>);
 

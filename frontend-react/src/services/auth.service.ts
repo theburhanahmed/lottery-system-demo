@@ -15,7 +15,9 @@ export const authService = {
       const response = await apiClient.post<{ token: string; user: any }>(
         '/users/login/',
         {
-          username: data.username, // Backend expects username
+          // Backend now accepts either username or email; send both for compatibility
+          username: data.username,
+          email: data.username,
           password: data.password,
         },
       )

@@ -453,7 +453,7 @@ export function Navbar({ user, onLogout, notifications = [] }: NavbarProps) {
                     Log In
                   </Button>
                 </Link>
-                <Link to="/login">
+                <Link to="/signup">
                   <Button variant="primary" size="sm">
                     Register
                   </Button>

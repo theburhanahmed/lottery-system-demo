@@ -118,10 +118,11 @@ def login_view(request):
         })
     else:
         # Log failed login attempt
-        username = request.data.get('username')
-        if username:
+        identifier = request.data.get('username') or request.data.get('email')
+        if identifier:
+            from django.db.models import Q
             try:
-                user = User.objects.get(username=username)
+                user = User.objects.get(Q(username__iexact=identifier) | Q(email__iexact=identifier))
                 AuditLog.objects.create(
                     user=user,
                     action='FAILED_LOGIN',
@@ -134,7 +135,7 @@ def login_view(request):
                 AuditLog.objects.create(
                     user=None,
                     action='FAILED_LOGIN',
-                    description=f'Failed login attempt for non-existent user: {username}',
+                    description=f'Failed login attempt for non-existent user identifier: {identifier}',
                     ip_address=get_client_ip(request),
                     user_agent=request.META.get('HTTP_USER_AGENT', '')[:255]
                 )

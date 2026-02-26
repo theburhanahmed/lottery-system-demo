@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Dices, Loader2, Trophy } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
+import { Dices, Loader2, Trophy, LogOut, ArrowDown, ArrowUp } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { useAuth } from '../contexts/AuthContext'
@@ -19,8 +19,12 @@ const LADDERS: Record<number, number> = {
 
 const PLAYER_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444']
 
-export function SnakesLaddersPage() {
-  const { roomId } = useParams<{ roomId: string }>()
+interface SnakesLaddersPageProps {
+  roomId: string;
+  addToast?: (msg: string, type: 'success' | 'error' | 'info') => void;
+}
+
+export function SnakesLaddersPage({ roomId, addToast }: SnakesLaddersPageProps) {
   const navigate = useNavigate()
   const { user: authUser } = useAuth()
   const [room, setRoom] = useState<GameRoomDetail | null>(null)
@@ -37,11 +41,13 @@ export function SnakesLaddersPage() {
     state?.current_turn_index !== undefined &&
     state?.players?.[state.current_turn_index]?.user_id === currentUserId
   const isFinished = state?.phase === 'finished'
+  const currentTurnPlayer = state?.players?.[state?.current_turn_index ?? -1]
+  const currentTurnUsername = currentTurnPlayer ? room?.players.find((rp) => rp.user_id === currentTurnPlayer.user_id)?.username : null
 
   const connectWs = useCallback(() => {
-    if (!roomId) return
+    if (!roomId) return () => {}
     const token = storage.getAccessToken()
-    if (!token) return
+    if (!token) return () => {}
     const base = API_CONFIG.wsURL.replace(/\/$/, '')
     const url = `${base}/games/${roomId}/?token=${encodeURIComponent(token)}`
     const ws = new WebSocket(url)
@@ -54,17 +60,21 @@ export function SnakesLaddersPage() {
         }
         if (data.type === 'error' && data.payload?.message) {
           setError(data.payload.message)
+          addToast?.(data.payload.message, 'error')
         }
       } catch (_) {}
     }
-    ws.onerror = () => setError('WebSocket error')
+    ws.onerror = () => {
+      setError('WebSocket error')
+      addToast?.('Connection error. Please refresh.', 'error')
+    }
     ws.onclose = () => {}
     wsRef.current = ws
     return () => {
       ws.close()
       wsRef.current = null
     }
-  }, [roomId])
+  }, [roomId, addToast])
 
   useEffect(() => {
     if (!roomId) {
@@ -85,6 +95,7 @@ export function SnakesLaddersPage() {
       })
       .catch((err) => {
         setError(err?.message || 'Failed to load room')
+        addToast?.(err?.message || 'Failed to load room', 'error')
       })
       .finally(() => setLoading(false))
     return () => {
@@ -93,7 +104,7 @@ export function SnakesLaddersPage() {
         wsRef.current = null
       }
     }
-  }, [roomId])
+  }, [roomId, connectWs, addToast])
 
   const handleStart = () => {
     if (!roomId) return
@@ -104,8 +115,11 @@ export function SnakesLaddersPage() {
         setRoom(r)
         setState(r.state)
         connectWs()
+        addToast?.('Game started!', 'success')
       })
-      .catch((err) => alert(err?.message || 'Failed to start'))
+      .catch((err) => {
+        addToast?.(err?.message || 'Failed to start', 'error')
+      })
       .finally(() => setLoading(false))
   }
 
@@ -144,10 +158,20 @@ export function SnakesLaddersPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-6 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <Link to="/games/snakes-ladders" className="text-emerald-600 dark:text-emerald-400 text-sm hover:underline">
-            Back to Lobby
-          </Link>
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <Link to="/games/snakes-ladders" className="text-emerald-600 dark:text-emerald-400 text-sm hover:underline">
+              Back to Lobby
+            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/games/snakes-ladders')}
+              className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400"
+            >
+              <LogOut size={14} /> Leave room
+            </Button>
+          </div>
           <span className="text-slate-600 dark:text-slate-400 text-sm">
             Entry: ${room.entry_fee} · {room.players.length}/{room.max_players} players
           </span>
@@ -166,15 +190,51 @@ export function SnakesLaddersPage() {
           </Card>
         )}
 
+        {room.status === 'IN_PROGRESS' && state && state.players && state.players.length > 0 && (
+          <Card className="p-3 mb-4">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Players</p>
+            <div className="flex flex-wrap gap-3">
+              {state.players.map((p, idx) => {
+                const username = room.players.find((rp) => rp.user_id === p.user_id)?.username ?? 'Player'
+                const pos = p.position ?? 0
+                const isCurrentTurn = state.current_turn_index === idx
+                return (
+                  <div
+                    key={p.user_id}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
+                      isCurrentTurn ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <div
+                      className="w-4 h-4 rounded-full border-2 border-white shadow flex-shrink-0"
+                      style={{ backgroundColor: PLAYER_COLORS[idx % PLAYER_COLORS.length] }}
+                    />
+                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate max-w-[100px]">{username}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">#{pos}</span>
+                    {isCurrentTurn && <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Turn</span>}
+                  </div>
+                )
+              })}
+            </div>
+          </Card>
+        )}
+
         {room.status === 'IN_PROGRESS' && state && (
           <>
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 flex-wrap">
                 {state.last_dice != null && (
                   <span className="text-2xl font-bold text-slate-800 dark:text-white">
                     Dice: {state.last_dice}
                   </span>
                 )}
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+                  {isMyTurn ? (
+                    <span className="text-emerald-600 dark:text-emerald-400">Your turn — roll the dice!</span>
+                  ) : currentTurnUsername ? (
+                    <span>{currentTurnUsername}&apos;s turn</span>
+                  ) : null}
+                </span>
                 {state.winner_id && (
                   <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold">
                     <Trophy size={20} /> Winner!
@@ -249,14 +309,24 @@ function Board({ state, room }: { state: SnakesLaddersState; room: GameRoomDetai
                     text-slate-800 dark:text-slate-200
                   `}
                 >
-                  <span>{cell}</span>
+                  <span className="relative z-10">{cell}</span>
+                  {isSnake && (
+                    <span className="absolute bottom-0.5 right-0.5 text-red-600 dark:text-red-400 opacity-80" title="Snake"><ArrowDown size={10} /></span>
+                  )}
+                  {isLadder && (
+                    <span className="absolute top-0.5 right-0.5 text-green-700 dark:text-green-500 opacity-80" title="Ladder"><ArrowUp size={10} /></span>
+                  )}
                   {playersHere.length > 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center gap-0.5 pointer-events-none">
+                    <div className="absolute inset-0 flex items-center justify-center gap-0.5 pointer-events-none flex-wrap">
                       {playersHere.map((p, i) => (
                         <div
                           key={p.user_id}
-                          className="w-3 h-3 rounded-full border-2 border-white shadow"
-                          style={{ backgroundColor: PLAYER_COLORS[state.players!.indexOf(p) % PLAYER_COLORS.length] }}
+                          className="w-4 h-4 rounded-full border-2 border-white shadow flex-shrink-0"
+                          style={{
+                            backgroundColor: PLAYER_COLORS[state.players!.indexOf(p) % PLAYER_COLORS.length],
+                            marginLeft: i > 0 ? '-2px' : 0,
+                            marginTop: i > 0 ? '-1px' : 0,
+                          }}
                           title={room.players.find((rp) => rp.user_id === p.user_id)?.username}
                         />
                       ))}

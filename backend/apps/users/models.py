@@ -229,4 +229,5 @@ class AuditLog(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.action} - {self.user.username} - {self.timestamp}"
+        username = self.user.username if self.user else "system"
+        return f"{self.action} - {username} - {self.timestamp}"

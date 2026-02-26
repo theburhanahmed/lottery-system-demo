@@ -4,6 +4,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from datetime import datetime, date
 from django.utils import timezone
+from django.db.models import Q
 from apps.users.models import User, UserProfile, AuditLog
 from apps.common.validators import validate_password_strength
 
@@ -98,45 +99,43 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    """
+    Flexible login serializer that accepts either username or email.
+    """
+    username = serializers.CharField(required=False, allow_blank=True)
+    email = serializers.EmailField(required=False, allow_blank=True)
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        username = data.get('username')
+        username = data.get('username', '').strip()
+        email = data.get('email', '').strip()
         password = data.get('password')
 
-        # Check if user exists first to prevent enumeration attacks
+        if not username and not email:
+            raise serializers.ValidationError("Username or email is required")
+
+        identifier = username or email
+
         try:
-            user = User.objects.get(username=username)
-            
-            # Check if account is locked
+            user = User.objects.get(Q(username__iexact=identifier) | Q(email__iexact=identifier))
+
             if user.is_account_locked():
                 raise serializers.ValidationError("Account is locked due to multiple failed login attempts")
-            
-            # Authenticate user
-            authenticated_user = authenticate(username=username, password=password)
-            
+
+            authenticated_user = authenticate(username=user.username, password=password)
+
             if not authenticated_user:
-                # Increment failed login attempts
                 user.increment_failed_login_attempts()
                 raise serializers.ValidationError("Invalid credentials")
-            
-            # Check if account is active
+
             if not authenticated_user.is_active:
                 raise serializers.ValidationError("Account is not active")
-            
-            # Email verification check removed - allow login even if email not verified
-            # This can be re-enabled if email verification is required
-            
-            # Reset failed login attempts on successful login
+
             user.reset_failed_login_attempts()
-            
             user = authenticated_user
-            
+
         except User.DoesNotExist:
-            # To prevent user enumeration, treat non-existent users same as wrong password
-            # Just call authenticate with invalid credentials to take similar time
-            authenticate(username=username, password=password)
+            authenticate(username=identifier, password=password)
             raise serializers.ValidationError("Invalid credentials")
 
         data['user'] = user

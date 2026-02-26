@@ -1,7 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Ticket, Shield, Zap, Award } from 'lucide-react';
-export function Footer() {
+
+interface FooterProps {
+  user?: { id: string } | null;
+}
+
+export function Footer({ user }: FooterProps = {}) {
+  const quickLinks = [
+    { label: 'Home', href: '/' },
+    { label: 'Lotteries', href: '/lotteries' },
+    { label: 'Draw Results', href: '/results' },
+    { label: 'Check Numbers', href: '/check-numbers' },
+    ...(user ? [
+      { label: 'My Tickets', href: '/my-tickets' },
+      { label: 'Wallet', href: '/wallet' },
+    ] : []),
+  ];
+
   return (
     <footer className="bg-gray-900 text-gray-300 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
@@ -25,32 +41,7 @@ export function Footer() {
               Quick Links
             </h4>
             <div className="space-y-2.5">
-              {[
-              {
-                label: 'Home',
-                href: '/'
-              },
-              {
-                label: 'Lotteries',
-                href: '/lotteries'
-              },
-              {
-                label: 'Draw Results',
-                href: '/results'
-              },
-              {
-                label: 'Check Numbers',
-                href: '/check-numbers'
-              },
-              {
-                label: 'My Tickets',
-                href: '/my-tickets'
-              },
-              {
-                label: 'Wallet',
-                href: '/wallet'
-              }].
-              map((link) =>
+              {quickLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
@@ -58,7 +49,7 @@ export function Footer() {
               >
                 {link.label}
               </Link>
-              )}
+              ))}
             </div>
           </div>
           <div>

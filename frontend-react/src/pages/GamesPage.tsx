@@ -18,7 +18,20 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 // Static marketing list; playable slots are loaded from API on /slots
-const GAMES = [
+interface GameItem {
+  id: number;
+  name: string;
+  emoji: string;
+  plays: string;
+  volatility: string;
+  rtp: string;
+  tag: string | null;
+  colors: string;
+  featured: boolean;
+  freeSpins?: boolean;
+  premium?: boolean;
+}
+const GAMES: GameItem[] = [
 {
   id: 1,
   name: 'Cherry Blast',
@@ -28,7 +41,8 @@ const GAMES = [
   rtp: '96.5%',
   tag: 'HOT',
   colors: 'from-red-400 to-pink-500',
-  featured: true
+  featured: true,
+  freeSpins: true
 },
 {
   id: 2,
@@ -50,7 +64,8 @@ const GAMES = [
   rtp: '97.1%',
   tag: null,
   colors: 'from-cyan-400 to-blue-500',
-  featured: false
+  featured: false,
+  premium: true
 },
 {
   id: 4,
@@ -72,7 +87,8 @@ const GAMES = [
   rtp: '96.0%',
   tag: null,
   colors: 'from-yellow-300 to-orange-400',
-  featured: false
+  featured: false,
+  freeSpins: true
 },
 {
   id: 6,
@@ -94,7 +110,8 @@ const GAMES = [
   rtp: '97.8%',
   tag: 'NEW',
   colors: 'from-amber-400 to-yellow-600',
-  featured: false
+  featured: false,
+  premium: true
 },
 {
   id: 8,
@@ -105,7 +122,8 @@ const GAMES = [
   rtp: '96.3%',
   tag: null,
   colors: 'from-pink-400 to-rose-500',
-  featured: true
+  featured: true,
+  freeSpins: true
 },
 {
   id: 9,
@@ -185,8 +203,13 @@ export function GamesPage() {
   GAMES :
   GAMES.filter((g) => {
     if (activeFilter === 'high') return g.volatility === 'High';
-    if (activeFilter === 'popular') return parseInt(g.plays) > 3;
+    if (activeFilter === 'popular') {
+      const num = g.plays.includes('k') ? parseFloat(g.plays) * 1000 : parseInt(g.plays, 10);
+      return num >= 3000;
+    }
     if (activeFilter === 'new') return g.tag === 'NEW';
+    if (activeFilter === 'free') return g.freeSpins === true;
+    if (activeFilter === 'premium') return g.premium === true;
     return true;
   });
   const featuredGames = GAMES.filter((g) => g.featured);
@@ -195,10 +218,13 @@ export function GamesPage() {
       {/* 1. NAV TABS */}
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-purple-100 py-3 px-4 shadow-sm">
         <div className="flex justify-center gap-4 max-w-md mx-auto">
-          <button className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold shadow-lg transform scale-105 transition-transform">
+          <Link
+            to="/slots"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold shadow-lg transform scale-105 transition-transform hover:opacity-95"
+          >
             <Gamepad2 size={18} />
             Slots
-          </button>
+          </Link>
           <Link
             to="/games/snakes-ladders"
             className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-gray-500 font-bold border border-gray-200 hover:bg-gray-50 transition-colors">

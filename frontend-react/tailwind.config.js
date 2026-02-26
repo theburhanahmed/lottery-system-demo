@@ -46,6 +46,22 @@ module.exports = {content: [
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        brandGold: {
+          50: "#fffbeb",
+          100: "#fef3c7",
+          200: "#fde68a",
+          300: "#fcd34d",
+          400: "#fbbf24",
+          500: "#d4af37",
+          600: "#b8860b",
+          700: "#92400e",
+          800: "#78350f",
+          900: "#451a03",
+        },
+      },
+      boxShadow: {
+        "glow-gold": "0 0 20px rgba(212, 175, 55, 0.4)",
+        "glow-gold-lg": "0 0 32px rgba(212, 175, 55, 0.5)",
       },
       borderRadius: {
         lg: "var(--radius)",

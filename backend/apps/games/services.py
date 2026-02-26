@@ -72,12 +72,21 @@ def create_room(user, game_kind: str, entry_fee: Decimal, config: dict = None):
 
 @transaction.atomic
 def join_room(user, room_id: str):
-    """Add user to room if WAITING and not full. No auto-start."""
+    """Add user to room if WAITING and not full.
+
+    Making this operation idempotent for a given user+room:
+    if the user is already in the room, we simply return the room
+    instead of raising an error. This plays nicer with the frontend
+    join flow where the creator may click "Join" on their own room.
+    No auto-start.
+    """
     room = GameRoom.objects.get(id=room_id)
     if room.status != GameRoom.STATUS_WAITING:
         raise ValueError('Room is not waiting for players')
     if room.players.filter(user=user).exists():
-        raise ValueError('Already in this room')
+        # User already in room - treat as success
+        logger.info(f'User {user.id} re-joined room {room_id} (already a player)')
+        return room
     current_count = room.players.count()
     if current_count >= room.max_players:
         raise ValueError('Room is full')
@@ -132,7 +141,7 @@ def start_game(room_id: str, started_by_user=None):
             game_room=room,
         )
         profile, _ = UserProfile.objects.get_or_create(user=u)
-        profile.total_spent += float(entry_fee)
+        profile.total_spent += entry_fee
         profile.save()
 
     room.status = GameRoom.STATUS_IN_PROGRESS
@@ -207,7 +216,7 @@ def end_game(room_id: str, results: list = None):
                 game_room=room,
             )
             profile, _ = UserProfile.objects.get_or_create(user=u)
-            profile.total_won += float(payout)
+            profile.total_won += payout
             profile.total_wins += 1
             profile.save()
 

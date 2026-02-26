@@ -117,8 +117,8 @@ To complete the integration:
 
 ## 🐛 Known Issues
 
-- Token refresh may need backend updates to return refresh tokens
-- Some API endpoints may need adaptation based on actual backend implementation
+- Token refresh may need backend updates to return refresh tokens`
+- Some API endpoints may need adaptation based on actual backend implementation`
 - Stripe integration needs configuration
 
 ## 📄 License

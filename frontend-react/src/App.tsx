@@ -85,6 +85,7 @@ function NotFoundPage() {
 
 function AppContent() {
   const state = useAppStateAdapter();
+  const { register } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -123,7 +124,13 @@ function AppContent() {
       if (state.user) {
         return <Navigate to="/dashboard" replace />;
       }
-      return <LoginPage onLogin={state.login} addToast={state.addToast} />;
+      return (
+        <LoginPage
+          onLogin={state.login}
+          onRegister={register}
+          addToast={state.addToast}
+        />
+      );
     }
     if (path === '/signup') return <SignupPage />;
     if (path === '/forgot-password') return <ForgotPassword />;
@@ -190,9 +197,9 @@ function AppContent() {
       );
     }
     if (path === '/slots') return <SlotsPage />;
-    if (path === '/games/snakes-ladders' && !segments[3]) return <SnakesLaddersLobbyPage />;
+    if (path === '/games/snakes-ladders' && !segments[3]) return <SnakesLaddersLobbyPage addToast={state.addToast} />;
     if (path.startsWith('/games/snakes-ladders/') && segments[2]) {
-      return <SnakesLaddersPage />;
+      return <SnakesLaddersPage roomId={segments[2]} addToast={state.addToast} />;
     }
     if (path === '/admin') {
       if (state.user.role !== 'admin') {
@@ -257,7 +264,7 @@ function AppContent() {
               </Card>
             </div>
           </main>
-          <Footer />
+          <Footer user={state.user} />
           <ToastContainer toasts={state.toasts} onRemove={state.removeToast} />
           <CookieConsent />
         </div>
@@ -275,7 +282,7 @@ function AppContent() {
             onBuyTicket={state.buyTicket}
           />
         </main>
-        <Footer />
+        <Footer user={state.user} />
         <ToastContainer toasts={state.toasts} onRemove={state.removeToast} />
         <CookieConsent />
       </div>
@@ -321,7 +328,7 @@ function AppContent() {
         />
       )}
       <main className="flex-1">{renderPublicPage() || <NotFoundPage />}</main>
-      {!isLoginPage && <Footer />}
+      {!isLoginPage && <Footer user={state.user} />}
       <ToastContainer toasts={state.toasts} onRemove={state.removeToast} />
       <CookieConsent />
     </div>
@@ -381,7 +388,7 @@ function DrawResultsLayout() {
       <main className="flex-1">
         <DrawResultsPage />
       </main>
-      <Footer />
+      <Footer user={state.user} />
       <ToastContainer toasts={state.toasts} onRemove={state.removeToast} />
       <CookieConsent />
     </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Users, Coins, Loader2 } from 'lucide-react'
+import { Plus, Users, Coins, Loader2, Gamepad2 } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { gamesService } from '../services/games.service'
@@ -8,7 +8,11 @@ import type { GameRoomListItem, GameRoomDetail } from '../services/games.service
 
 const ENTRY_OPTIONS = ['1', '2', '5', '10', '25']
 
-export function SnakesLaddersLobbyPage() {
+interface SnakesLaddersLobbyPageProps {
+  addToast?: (msg: string, type: 'success' | 'error' | 'info') => void;
+}
+
+export function SnakesLaddersLobbyPage({ addToast }: SnakesLaddersLobbyPageProps) {
   const [rooms, setRooms] = useState<GameRoomListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
@@ -16,8 +20,8 @@ export function SnakesLaddersLobbyPage() {
   const [showCreate, setShowCreate] = useState(false)
   const navigate = useNavigate()
 
-  const fetchRooms = () => {
-    setLoading(true)
+  const fetchRooms = (showLoading = false) => {
+    if (showLoading) setLoading(true)
     gamesService
       .listRooms('SNAKES_LADDERS', 'WAITING')
       .then((data) => setRooms(Array.isArray(data) ? data : []))
@@ -26,8 +30,8 @@ export function SnakesLaddersLobbyPage() {
   }
 
   useEffect(() => {
-    fetchRooms()
-    const t = setInterval(fetchRooms, 5000)
+    fetchRooms(true)
+    const t = setInterval(() => fetchRooms(false), 5000)
     return () => clearInterval(t)
   }, [])
 
@@ -37,10 +41,11 @@ export function SnakesLaddersLobbyPage() {
       .createRoom({ game_kind: 'SNAKES_LADDERS', entry_fee: createEntry })
       .then((room: GameRoomDetail) => {
         setShowCreate(false)
+        addToast?.('Room created!', 'success')
         navigate(`/games/snakes-ladders/${room.id}`)
       })
       .catch((err: { message?: string }) => {
-        alert(err?.message || 'Failed to create room')
+        addToast?.(err?.message || 'Failed to create room', 'error')
       })
       .finally(() => setCreating(false))
   }
@@ -49,10 +54,11 @@ export function SnakesLaddersLobbyPage() {
     gamesService
       .joinRoom(roomId)
       .then((room: GameRoomDetail) => {
+        addToast?.('Joined room!', 'success')
         navigate(`/games/snakes-ladders/${room.id}`)
       })
       .catch((err: { message?: string }) => {
-        alert(err?.message || 'Failed to join room')
+        addToast?.(err?.message || 'Failed to join room', 'error')
       })
   }
 
@@ -105,13 +111,34 @@ export function SnakesLaddersLobbyPage() {
         )}
 
         <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-3">Waiting rooms</h2>
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 size={32} className="animate-spin text-emerald-600" />
-          </div>
-        ) : rooms.length === 0 ? (
-          <Card className="p-8 text-center text-slate-600 dark:text-slate-400">
-            No rooms waiting. Create one to start.
+        {loading && rooms.length === 0 ? (
+          <ul className="space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <li key={i}>
+                <Card className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4 animate-pulse">
+                    <div className="h-5 w-12 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded" />
+                  </div>
+                  <div className="h-9 w-16 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
+                </Card>
+              </li>
+            ))}
+          </ul>
+        ) : !loading && rooms.length === 0 ? (
+          <Card className="p-10 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+              <Gamepad2 size={32} className="text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">No rooms yet</h3>
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-6 max-w-sm mx-auto">
+              Be the first to create a room and invite friends to play Snakes & Ladders.
+            </p>
+            <Button variant="primary" onClick={() => setShowCreate(true)} className="flex items-center gap-2 mx-auto">
+              <Plus size={18} />
+              Create a room
+            </Button>
           </Card>
         ) : (
           <ul className="space-y-3">
