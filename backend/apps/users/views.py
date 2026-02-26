@@ -168,7 +168,7 @@ class PasswordResetRequestView(APIView):
                         user=user,
                         action='PASSWORD_RESET_REQUEST',
                         description='Password reset request sent',
-                        ip_address=self.get_client_ip(request)
+                        ip_address=get_client_ip(request)
                     )
             except User.DoesNotExist:
                 # Don't reveal if email exists to prevent enumeration attacks
@@ -200,7 +200,7 @@ class PasswordResetView(APIView):
                 user=user,
                 action='PASSWORD_RESET',
                 description='Password reset successful',
-                ip_address=self.get_client_ip(request)
+                ip_address=get_client_ip(request)
             )
             
             return Response({'message': 'Password has been reset successfully'},
@@ -233,7 +233,7 @@ class ChangePasswordView(APIView):
                 user=user,
                 action='CHANGE_PASSWORD',
                 description='Password changed',
-                ip_address=self.get_client_ip(request)
+                ip_address=get_client_ip(request)
             )
             
             return Response({'message': 'Password changed successfully'},
@@ -261,7 +261,7 @@ class EmailVerificationView(APIView):
                     user=user,
                     action='EMAIL_VERIFICATION',
                     description='Email verified successfully',
-                    ip_address=self.get_client_ip(request)
+                    ip_address=get_client_ip(request)
                 )
                 
                 return Response({'message': 'Email verified successfully'},
@@ -609,7 +609,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user=request.user,
             action='CHANGE_ROLE',
             description=f'Changed user {user.username} role from {old_role} to {new_role}',
-            ip_address=self.get_client_ip(request)
+            ip_address=get_client_ip(request)
         )
         
         return Response({'message': 'Role updated successfully', 'user': UserDetailSerializer(user).data})
@@ -634,7 +634,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user=request.user,
             action='TOGGLE_USER_STATUS',
             description=f'{status_str.capitalize()} user {user.username}',
-            ip_address=self.get_client_ip(request)
+            ip_address=get_client_ip(request)
         )
         
         return Response({'message': f'User {status_str} successfully', 'is_active': user.is_active})

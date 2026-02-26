@@ -53,7 +53,9 @@ export const authService = {
   // Logout
   async logout(): Promise<void> {
     try {
-      await apiClient.post('/users/logout/')
+      // Backend logout endpoint is provided via UserViewSet action:
+      // /api/users/users/logout/
+      await apiClient.post('/users/users/logout/')
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
@@ -143,6 +145,7 @@ export const authService = {
       const response = await apiClient.post('/users/password-reset/', {
         token,
         new_password: newPassword,
+        confirm_password: newPassword,
       })
       return response
     } catch (error) {
