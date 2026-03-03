@@ -13,13 +13,15 @@ from apps.users.models import User, UserProfile, AuditLog
 from apps.users.responsible_gaming import ResponsibleGamingService
 from apps.transactions.models import Transaction
 from .models import GameRoom, GameRoomPlayer, GameState, GameKind
-from .engines import snakes_ladders
+from .engines import get_engine_for_game_kind
 
 logger = logging.getLogger(__name__)
 
 # Per-game entry fee limits (min, max)
 GAME_ENTRY_LIMITS = {
     GameKind.SNAKES_LADDERS: (Decimal('0.10'), Decimal('100.00')),
+    GameKind.LUDO: (Decimal('0.10'), Decimal('100.00')),
+    GameKind.CARROM: (Decimal('0.10'), Decimal('100.00')),
 }
 
 
@@ -50,11 +52,9 @@ def create_room(user, game_kind: str, entry_fee: Decimal, config: dict = None):
     if entry_fee < min_fee or entry_fee > max_fee:
         raise ValueError(f'Entry fee must be between {min_fee} and {max_fee}')
 
+    # Default player counts; can be customized per game kind if needed.
     min_players = 2
     max_players = 4
-    if game_kind == GameKind.SNAKES_LADDERS:
-        min_players = 2
-        max_players = 4
 
     room = GameRoom.objects.create(
         game_kind=game_kind,
@@ -148,11 +148,9 @@ def start_game(room_id: str, started_by_user=None):
     room.started_at = timezone.now()
     room.save()
 
-    # Create initial game state
-    if room.game_kind == GameKind.SNAKES_LADDERS:
-        state_dict = snakes_ladders.initial_state(room, room.config)
-    else:
-        raise ValueError(f'No engine for game kind: {room.game_kind}')
+    # Create initial game state using the appropriate engine
+    engine = get_engine_for_game_kind(room.game_kind)
+    state_dict = engine.initial_state(room, room.config)
 
     GameState.objects.create(room=room, state=state_dict, version=0)
 

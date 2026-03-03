@@ -8,7 +8,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 
 from django.contrib.auth import get_user_model
 from .models import GameRoom, GameRoomPlayer, GameState, GameKind
-from .engines import snakes_ladders
+from .engines import get_engine_for_game_kind
 from .services import end_game
 
 logger = logging.getLogger(__name__)
@@ -109,15 +109,19 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
         state = gs.state
         version = gs.version
-        if room.game_kind == GameKind.SNAKES_LADDERS:
-            try:
-                new_state = snakes_ladders.apply_action(
-                    state, str(user.id), payload, self.room_id, version
-                )
-            except ValueError as e:
-                return {'error': str(e)}
-        else:
-            return {'error': 'Unknown game kind'}
+
+        engine = None
+        try:
+            engine = get_engine_for_game_kind(room.game_kind)
+        except ValueError as e:
+            return {'error': str(e)}
+
+        try:
+            new_state = engine.apply_action(
+                state, str(user.id), payload, self.room_id, version
+            )
+        except ValueError as e:
+            return {'error': str(e)}
 
         gs.state = new_state
         gs.version = version + 1
