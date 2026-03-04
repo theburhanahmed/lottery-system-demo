@@ -63,6 +63,14 @@ Frontend: set `VITE_RAZORPAY_KEY_ID` to the same key ID so the checkout script c
 - `VITE_WS_URL` - WebSocket URL (default: `ws://localhost:8000/ws`)
 - `VITE_STRIPE_PUBLIC_KEY` - Stripe publishable key for payments
 - `VITE_APP_ENV` - `development` or `production`
+- `VITE_GA4_ID` - Google Analytics 4 Measurement ID (`G-...`). Optional in development, REQUIRED in production builds.
+- `VITE_ADSENSE_CLIENT` - Google AdSense publisher client ID (`ca-pub-...`). Optional in development, REQUIRED in production builds.
+
+#### Analytics and Ads requirements
+- Development and preview builds print warnings if `VITE_GA4_ID` or `VITE_ADSENSE_CLIENT` are missing.
+- Production builds fail fast if either variable is missing or still set to placeholder values.
+- Placeholder values `G-XXXXXXXXXX` and `ca-pub-XXXXXXXXXXXXXXXX` are blocked in production mode.
+- `frontend-react/public/ads.txt` is served from the app root at `/ads.txt` for AdSense verification.
 
 ### Backend: Frontend URL for emails
 - `FRONTEND_URL` - Frontend URL for email links (default: `http://localhost:3000`)
@@ -127,6 +135,10 @@ DEFAULT_FROM_EMAIL=noreply@lottery-system.com
 
 # Frontend
 FRONTEND_URL=https://yourdomain.com
+VITE_API_BASE_URL=https://api.yourdomain.com/api
+VITE_WS_URL=wss://api.yourdomain.com/ws
+VITE_GA4_ID=G-REPLACE_WITH_REAL_ID
+VITE_ADSENSE_CLIENT=ca-pub-REPLACE_WITH_REAL_ID
 
 # Celery
 CELERY_BROKER_URL=redis://localhost:6379/0
