@@ -144,6 +144,10 @@ DEFAULT_FROM_EMAIL=noreply@lottery-system.com
 
 # Frontend
 FRONTEND_URL=https://yourdomain.com
+VITE_API_BASE_URL=https://api.yourdomain.com/api
+VITE_WS_URL=wss://api.yourdomain.com/ws
+VITE_GA4_ID=G-REPLACE_WITH_REAL_ID
+VITE_ADSENSE_CLIENT=ca-pub-REPLACE_WITH_REAL_ID
 
 # Celery
 CELERY_BROKER_URL=redis://localhost:6379/0
