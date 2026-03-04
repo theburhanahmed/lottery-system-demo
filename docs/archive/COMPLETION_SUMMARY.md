@@ -434,7 +434,7 @@ You can now:
 
 ## Getting Started
 
-Refer to [INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md) for detailed setup instructions.
+Refer to [INTEGRATION_GUIDE.md](../guides/INTEGRATION_GUIDE.md) for detailed setup instructions.
 
 ---
 

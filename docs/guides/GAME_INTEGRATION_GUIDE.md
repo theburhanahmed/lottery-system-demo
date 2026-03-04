@@ -9,12 +9,12 @@ This guide describes how to add a new game type to the platform (e.g. Ludo, Carr
 
 ## 1. Register the game kind
 
-In [backend/apps/games/models.py](backend/apps/games/models.py):
+In [`backend/apps/games/models.py`](../../backend/apps/games/models.py):
 
 - Add a new constant to `GameKind` (e.g. `LUDO = 'LUDO'`).
 - Add the choice to `GameKind.CHOICES`.
 
-In [backend/apps/games/services.py](backend/apps/games/services.py):
+In [`backend/apps/games/services.py`](../../backend/apps/games/services.py):
 
 - Add entry-fee limits in `GAME_ENTRY_LIMITS` for the new kind.
 - In `start_game`, add a branch that creates initial state using the new engine’s `initial_state(room, config)`.
@@ -33,7 +33,7 @@ Export the module in `backend/apps/games/engines/__init__.py`.
 
 ## 3. Wire the WebSocket consumer
 
-In [backend/apps/games/consumers.py](backend/apps/games/consumers.py):
+In [`backend/apps/games/consumers.py`](../../backend/apps/games/consumers.py):
 
 - In `_apply_action_sync`, add a branch for the new `game_kind`: load `room.game_state`, call your engine’s `apply_action(state, str(user.id), payload, self.room_id, gs.version)`, then save `GameState` and return the new state.
 - If the new state indicates game over (e.g. a `winner_id` or `phase == 'finished'`), the existing flow will call `end_game(room_id)` after broadcasting.
@@ -59,13 +59,13 @@ Existing endpoints support any game kind:
 
 ## 6. End-game and payouts
 
-`end_game(room_id, results=None)` in [backend/apps/games/services.py](backend/apps/games/services.py) credits the winner(s) and creates `GAME_WIN` transactions. If you do not pass `results`, it derives them from `GameState.state` (e.g. `winner_id`). For multiple winners or custom payout splits, pass a `results` list of `{ user_id, result, payout }`.
+`end_game(room_id, results=None)` in [`backend/apps/games/services.py`](../../backend/apps/games/services.py) credits the winner(s) and creates `GAME_WIN` transactions. If you do not pass `results`, it derives them from `GameState.state` (e.g. `winner_id`). For multiple winners or custom payout splits, pass a `results` list of `{ user_id, result, payout }`.
 
 ## Reference: Snakes & Ladders
 
-- **Engine:** [backend/apps/games/engines/snakes_ladders.py](backend/apps/games/engines/snakes_ladders.py) – `initial_state`, `apply_action` (roll_dice, move, snakes/ladders, win, extra turn on 6).
-- **Lobby:** [frontend-react/src/pages/SnakesLaddersLobbyPage.tsx](frontend-react/src/pages/SnakesLaddersLobbyPage.tsx).
-- **Game UI:** [frontend-react/src/pages/SnakesLaddersPage.tsx](frontend-react/src/pages/SnakesLaddersPage.tsx) – board grid, WebSocket, roll button.
+- **Engine:** [`backend/apps/games/engines/snakes_ladders.py`](../../backend/apps/games/engines/snakes_ladders.py) – `initial_state`, `apply_action` (roll_dice, move, snakes/ladders, win, extra turn on 6).
+- **Lobby:** [`frontend-react/src/pages/SnakesLaddersLobbyPage.tsx`](../../frontend-react/src/pages/SnakesLaddersLobbyPage.tsx).
+- **Game UI:** [`frontend-react/src/pages/SnakesLaddersPage.tsx`](../../frontend-react/src/pages/SnakesLaddersPage.tsx) – board grid, WebSocket, roll button.
 
 ## Running with WebSockets
 
