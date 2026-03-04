@@ -71,6 +71,9 @@ The frontend is configured to work with the Django backend:
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm run test` - Run the frontend test suite once with Vitest
+- `npm run test:watch` - Run Vitest in watch mode
+- `npm run test:coverage` - Run tests with coverage and enforce minimum thresholds
 
 ## 📝 Notes
 
