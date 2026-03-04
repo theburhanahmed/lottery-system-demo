@@ -11,15 +11,15 @@ The 49FlashMoney lottery platform frontend has been completely redesigned with *
 ### 📖 Documentation
 - **[FRONTEND_REDESIGN_SUMMARY.md](./FRONTEND_REDESIGN_SUMMARY.md)** - Complete project summary
 - **[FRONTEND_PREMIUM_REDESIGN.md](./FRONTEND_PREMIUM_REDESIGN.md)** - Implementation details
-- **[frontend/PREMIUM_EFFECTS_GUIDE.md](./frontend/PREMIUM_EFFECTS_GUIDE.md)** - API reference
-- **[frontend/REDESIGN_COMPLETE.md](./frontend/REDESIGN_COMPLETE.md)** - Quick start guide
+- **[frontend-legacy/PREMIUM_EFFECTS_GUIDE.md](./frontend-legacy/PREMIUM_EFFECTS_GUIDE.md)** - API reference
+- **[frontend-legacy/REDESIGN_COMPLETE.md](./frontend-legacy/REDESIGN_COMPLETE.md)** - Quick start guide
 - **[IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md)** - Validation checklist
 
 ### 🎨 Live Demos
-- **[showcase-premium.html](./frontend/showcase-premium.html)** - Complete effects showcase
-- **[before-after.html](./frontend/before-after.html)** - Visual comparison
-- **[lotteries-enhanced.html](./frontend/pages/lotteries-enhanced.html)** - Enhanced lottery browsing
-- **[dashboard-enhanced.html](./frontend/pages/dashboard-enhanced.html)** - Premium dashboard
+- **`frontend/showcase-premium.html` (legacy demo file removed from this repo)** - Complete effects showcase
+- **`frontend/before-after.html` (legacy demo file removed from this repo)** - Visual comparison
+- **`frontend/pages/lotteries-enhanced.html` (legacy demo file removed from this repo)** - Enhanced lottery browsing
+- **`frontend/pages/dashboard-enhanced.html` (legacy demo file removed from this repo)** - Premium dashboard
 
 ---
 
@@ -539,10 +539,10 @@ This redesign represents a comprehensive effort to create a modern, engaging, an
 
 - [📊 Summary](./FRONTEND_REDESIGN_SUMMARY.md)
 - [📖 Implementation Guide](./FRONTEND_PREMIUM_REDESIGN.md)
-- [🎨 Effects API](./frontend/PREMIUM_EFFECTS_GUIDE.md)
+- [🎨 Effects API](./frontend-legacy/PREMIUM_EFFECTS_GUIDE.md)
 - [✅ Checklist](./IMPLEMENTATION_CHECKLIST.md)
-- [🎨 Showcase](./frontend/showcase-premium.html)
-- [🔍 Before/After](./frontend/before-after.html)
+- `🎨 Showcase: frontend/showcase-premium.html` (legacy demo file removed)
+- `🔍 Before/After: frontend/before-after.html` (legacy demo file removed)
 
 ---
 

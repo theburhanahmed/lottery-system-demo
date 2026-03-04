@@ -248,8 +248,8 @@ The `db.sqlite3` file will be created in the root directory.
 ---
 
 For complete system documentation, see:
-- [Main README](./README.md)
-- [Backend Documentation](./backend/README.md)
-- [API Documentation](./API_DOCUMENTATION.md)
+- [Main README](../../README.md)
+- [Backend Documentation](../../backend/README.md)
+- [API Documentation](../api/API_DOCUMENTATION.md)
 - [Setup Guide](../setup/SETUP.md)
-- [Integration Guide](./INTEGRATION_GUIDE.md)
+- [Integration Guide](../guides/INTEGRATION_GUIDE.md)
