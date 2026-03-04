@@ -82,6 +82,16 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'happy-dom',
       setupFiles: ['src/test/setup.ts'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'lcov'],
+        thresholds: {
+          lines: 60,
+          functions: 60,
+          branches: 50,
+          statements: 60,
+        },
+      },
     },
   }
 })
