@@ -3,10 +3,10 @@
 ## 🎯 Quick Navigation
 
 ### For Users
-- **[Main App](./index.html)** - Complete lottery application
-- **[Landing Page](./landing.html)** - Marketing and features showcase
-- **[Interactive Showcase](./showcase.html)** - Try all effects and animations
-- **[Card Gallery](./demo-cards.html)** - Premium lottery card designs
+- **`Main App (index.html)`** - Complete lottery application
+- **`Landing Page (landing.html)`** - Marketing and features showcase
+- **`Interactive Showcase (showcase.html)`** - Try all effects and animations
+- **`Card Gallery (demo-cards.html)`** - Premium lottery card designs
 
 ### For Developers
 - **[Developer Guide](./DEVELOPER_GUIDE.md)** - Implementation reference and API docs
@@ -359,8 +359,8 @@ Use: `demo-cards.html` as template
 
 1. Start with **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)**
 2. Review **[UI_ENHANCEMENTS.md](./UI_ENHANCEMENTS.md)**
-3. Explore **[showcase.html](./showcase.html)**
-4. Study **[demo-cards.html](./demo-cards.html)**
+3. Explore **`showcase.html` (not included in this archived docs-only folder)**
+4. Study **`demo-cards.html` (not included in this archived docs-only folder)**
 5. Reference **[UI_REDESIGN_SUMMARY.md](./UI_REDESIGN_SUMMARY.md)**
 
 ## 🎓 Code Examples by Feature

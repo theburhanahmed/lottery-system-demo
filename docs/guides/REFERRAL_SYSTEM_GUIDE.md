@@ -828,6 +828,6 @@ With comprehensive API endpoints, admin interface, and user features, it's ready
 
 ---
 
-**For API Documentation**: See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+**For API Documentation**: See [API_DOCUMENTATION.md](../api/API_DOCUMENTATION.md)
 **For Setup Guide**: See [SETUP.md](../setup/SETUP.md)
 **For Integration Guide**: See [INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md)

@@ -583,5 +583,5 @@ Burhan Ahmed
 
 ---
 
-For detailed API documentation, see [API_DOCUMENTATION.md](../API_DOCUMENTATION.md)
-For integration guide, see [INTEGRATION_GUIDE.md](../INTEGRATION_GUIDE.md)
+For detailed API documentation, see [docs/api/API_DOCUMENTATION.md](../docs/api/API_DOCUMENTATION.md)
+For integration guide, see [docs/guides/INTEGRATION_GUIDE.md](../docs/guides/INTEGRATION_GUIDE.md)

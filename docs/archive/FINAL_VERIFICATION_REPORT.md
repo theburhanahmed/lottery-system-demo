@@ -508,12 +508,12 @@ Hash: b6b286263daea0b9347508bae7a10f686e15793d
 ## Support & Documentation
 
 **Complete Documentation Available**:
-- [Main README.md](./README.md) - Project overview
-- [Backend Documentation](./backend/README.md) - Backend details
-- [API Documentation](./API_DOCUMENTATION.md) - API reference
+- [Main README.md](../../README.md) - Project overview
+- [Backend Documentation](../../backend/README.md) - Backend details
+- [API Documentation](../api/API_DOCUMENTATION.md) - API reference
 - [Setup Guide](../setup/SETUP.md) - Installation steps
-- [Integration Guide](./INTEGRATION_GUIDE.md) - Frontend-backend integration
-- [Quick Reference](./QUICK_REFERENCE.md) - Common commands
+- [Integration Guide](../guides/INTEGRATION_GUIDE.md) - Frontend-backend integration
+- [Quick Reference](../setup/QUICK_REFERENCE.md) - Common commands
 
 **Direct Links**:
 - GitHub Repository: [lottery-system-demo](https://github.com/theburhanahmed/lottery-system-demo)
