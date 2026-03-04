@@ -22,7 +22,10 @@ cp .env.example .env
 
 # Update .env with your values:
 # VITE_API_BASE_URL=http://localhost:8000/api
-# VITE_STRIPE_PUBLIC_KEY=pk_test_your_key
+# VITE_WS_URL=ws://localhost:8000/ws
+# VITE_STRIPE_PUBLIC_KEY=pk_test_your_stripe_public_key_here
+# VITE_RAZORPAY_KEY_ID=rzp_test_your_razorpay_key_id_here
+# VITE_APP_ENV=development
 
 # Start development server
 npm run dev
@@ -100,6 +103,22 @@ Create a `.env` file:
 VITE_API_BASE_URL=http://localhost:8000/api
 VITE_WS_URL=ws://localhost:8000/ws
 VITE_STRIPE_PUBLIC_KEY=pk_test_your_stripe_public_key_here
+VITE_RAZORPAY_KEY_ID=rzp_test_your_razorpay_key_id_here
+VITE_APP_ENV=development
+VITE_SENTRY_DSN=
+VITE_GA4_ID=G-XXXXXXXXXX
+VITE_ADSENSE_CLIENT=ca-pub-XXXXXXXXXXXXXXXX
+```
+
+### Minimum required env vars to boot locally
+
+At minimum, set these before `npm run dev`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000/api
+VITE_WS_URL=ws://localhost:8000/ws
+VITE_STRIPE_PUBLIC_KEY=pk_test_your_stripe_public_key_here
+VITE_RAZORPAY_KEY_ID=rzp_test_your_razorpay_key_id_here
 VITE_APP_ENV=development
 ```
 
@@ -124,4 +143,3 @@ To complete the integration:
 ## 📄 License
 
 Proprietary - All rights reserved
-

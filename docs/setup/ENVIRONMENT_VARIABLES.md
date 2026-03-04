@@ -59,10 +59,27 @@ Frontend: set `VITE_RAZORPAY_KEY_ID` to the same key ID so the checkout script c
 - `USE_MAILGUN` - Use Mailgun (default: `False`)
 
 ### Frontend Configuration (frontend-react)
-- `VITE_API_BASE_URL` - Backend API base URL (default: `http://localhost:8000/api`). Set in Render Dashboard for the frontend service to your backend URL + `/api`.
+- `VITE_API_BASE_URL` - Backend API base URL (default: `http://localhost:8000/api`)
 - `VITE_WS_URL` - WebSocket URL (default: `ws://localhost:8000/ws`)
 - `VITE_STRIPE_PUBLIC_KEY` - Stripe publishable key for payments
+- `VITE_RAZORPAY_KEY_ID` - Razorpay key ID used by frontend checkout
 - `VITE_APP_ENV` - `development` or `production`
+- `VITE_SENTRY_DSN` - Optional Sentry DSN for frontend error monitoring
+- `VITE_GA4_ID` - Optional Google Analytics 4 measurement ID
+- `VITE_ADSENSE_CLIENT` - Optional Google AdSense publisher client ID
+
+Example `frontend-react/.env` values:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000/api
+VITE_WS_URL=ws://localhost:8000/ws
+VITE_STRIPE_PUBLIC_KEY=pk_test_your_stripe_public_key_here
+VITE_RAZORPAY_KEY_ID=rzp_test_your_razorpay_key_id_here
+VITE_APP_ENV=development
+VITE_SENTRY_DSN=
+VITE_GA4_ID=G-XXXXXXXXXX
+VITE_ADSENSE_CLIENT=ca-pub-XXXXXXXXXXXXXXXX
+```
 
 ### Backend: Frontend URL for emails
 - `FRONTEND_URL` - Frontend URL for email links (default: `http://localhost:3000`)
