@@ -29,6 +29,12 @@
     --destructive-foreground: 0 0% 100%;
     --ring: 120 61% 34%;
     --radius: 0.75rem;
+    /* Casino theme tokens */
+    --casino-dark: 15 23% 10.5%;
+    --casino-gold: 45 100% 51%;
+    --casino-purple: 268 79% 58%;
+    --casino-text: 210 40% 98%;
+    --casino-accent: 180 83% 54%;
   }
   :root[class~="dark"] {
     --background: 222.2 84% 4.9%;
@@ -51,6 +57,12 @@
     --destructive-foreground: 0 0% 100%;
     --ring: 120 61% 34%;
     --radius: 0.75rem;
+    /* Casino theme tokens */
+    --casino-dark: 15 23% 10.5%;
+    --casino-gold: 45 100% 51%;
+    --casino-purple: 268 79% 58%;
+    --casino-text: 210 40% 98%;
+    --casino-accent: 180 83% 54%;
   }
   /* Ensure dark mode class applies to body */
   .dark body {
@@ -236,6 +248,38 @@
   @keyframes wiggle-slow {
     0%, 100% { transform: rotate(-3deg); }
     50% { transform: rotate(3deg); }
+  }
+  /* Landing page animations */
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.6); }
+  }
+  @keyframes float-up {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes count-up {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-slide-up { animation: slide-up 0.6s ease-out forwards; }
+  .animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+  .animate-float-up { animation: float-up 0.8s ease-out forwards; }
+  .animate-count-up { animation: count-up 0.5s ease-out; }
+  @supports (animation-timeline: view()) {
+    @keyframes scroll-reveal {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .scroll-reveal {
+      animation: scroll-reveal 0.6s ease-out forwards;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
   }
   .animate-twinkle { animation: twinkle 3s ease-in-out infinite; }
   .animate-float-cloud-slow { animation: float-cloud-slow 20s ease-in-out infinite; }

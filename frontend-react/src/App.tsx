@@ -11,6 +11,7 @@ import { CookieConsent } from './components/CookieConsent';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
 import { HomePage } from './pages/HomePage';
+import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LotteriesPage } from './pages/LotteriesPage';
@@ -107,7 +108,11 @@ function AppContent() {
 
   const renderPublicPage = () => {
     if (path === '/' || path === '') {
-      return <HomePage lotteries={state.lotteries} user={state.user} />;
+      return state.user ? (
+        <HomePage lotteries={state.lotteries} user={state.user} />
+      ) : (
+        <LandingPage />
+      );
     }
     if (path === '/home') {
       return <Navigate to="/" replace />;
@@ -318,9 +323,16 @@ function AppContent() {
     );
   }
 
+  const isLandingPage = !state.user && path === '/';
+
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-900 transition-colors duration-300">
-      {!isLoginPage && (
+    <div
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${
+        isLandingPage
+          ? 'bg-slate-950'
+          : 'bg-white dark:bg-slate-900'
+      }`}>
+      {!isLoginPage && !isLandingPage && (
         <Navbar
           user={state.user}
           onLogout={state.logout}
@@ -328,7 +340,7 @@ function AppContent() {
         />
       )}
       <main className="flex-1">{renderPublicPage() || <NotFoundPage />}</main>
-      {!isLoginPage && <Footer user={state.user} />}
+      {!isLoginPage && !isLandingPage && <Footer user={state.user} />}
       <ToastContainer toasts={state.toasts} onRemove={state.removeToast} />
       <CookieConsent />
     </div>
