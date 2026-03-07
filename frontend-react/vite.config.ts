@@ -9,37 +9,35 @@ const ADSENSE_PLACEHOLDER = 'ca-pub-XXXXXXXXXXXXXXXX'
 const isMissing = (value?: string) => !value || value.trim().length === 0
 const isPlaceholder = (value: string, placeholder: string) => value.trim() === placeholder
 
-const validateProductionEnv = (key: string, value: string | undefined, placeholder: string) => {
-  if (isMissing(value)) {
-    throw new Error(
-      `[env] Missing ${key}. Set a real value before running a production build (placeholder ${placeholder} is not allowed).`
-    )
-  }
+const isPlaceholderOrMissing = (value: string | undefined, placeholder: string) =>
+  isMissing(value) || (value !== undefined && isPlaceholder(value, placeholder))
 
-  if (isPlaceholder(value, placeholder)) {
-    throw new Error(
-      `[env] Invalid ${key}. Placeholder value "${placeholder}" is not allowed in production builds.`
-    )
-  }
-}
+const hasRealValue = (value: string | undefined, placeholder: string) =>
+  !isPlaceholderOrMissing(value, placeholder)
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const isProductionMode = mode === 'production'
 
+  // GA4 and AdSense are optional: if missing or placeholder, we skip the plugins and allow the build.
   if (isProductionMode) {
-    validateProductionEnv('VITE_GA4_ID', env.VITE_GA4_ID, GA4_PLACEHOLDER)
-    validateProductionEnv('VITE_ADSENSE_CLIENT', env.VITE_ADSENSE_CLIENT, ADSENSE_PLACEHOLDER)
-  }
-
-  if (!isProductionMode) {
+    if (isPlaceholderOrMissing(env.VITE_GA4_ID, GA4_PLACEHOLDER)) {
+      console.warn(
+        '[env] VITE_GA4_ID is missing or placeholder. Google Analytics will be disabled in production.'
+      )
+    }
+    if (isPlaceholderOrMissing(env.VITE_ADSENSE_CLIENT, ADSENSE_PLACEHOLDER)) {
+      console.warn(
+        '[env] VITE_ADSENSE_CLIENT is missing or placeholder. AdSense will be disabled in production.'
+      )
+    }
+  } else {
     if (isMissing(env.VITE_GA4_ID)) {
       console.warn(
         `[env] VITE_GA4_ID is not set in ${mode} mode. Google Analytics tracking will be skipped.`
       )
     }
-
     if (isMissing(env.VITE_ADSENSE_CLIENT)) {
       console.warn(
         `[env] VITE_ADSENSE_CLIENT is not set in ${mode} mode. AdSense script injection will be skipped.`
@@ -49,20 +47,20 @@ export default defineConfig(({ mode }) => {
 
   const plugins: PluginOption[] = [react()]
 
-  if (!isMissing(env.VITE_GA4_ID)) {
+  if (hasRealValue(env.VITE_GA4_ID, GA4_PLACEHOLDER)) {
     plugins.push(
       VitePluginRadar({
         analytics: {
-          id: env.VITE_GA4_ID,
+          id: env.VITE_GA4_ID!,
         },
       })
     )
   }
 
-  if (!isMissing(env.VITE_ADSENSE_CLIENT)) {
+  if (hasRealValue(env.VITE_ADSENSE_CLIENT, ADSENSE_PLACEHOLDER)) {
     plugins.push(
       adsense({
-        client: env.VITE_ADSENSE_CLIENT,
+        client: env.VITE_ADSENSE_CLIENT!,
       })
     )
   }
